@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Custom Search Options</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      min-width: 500px;
+      padding: 10px;
+    }
+    .title-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 1.2em;
+      margin: 0;
+    }
+    .title-bar-actions {
+      display: flex;
+      gap: 10px;
+    }
+    #add-url-form {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    #add-url-form input#name,
+    #add-url-form input#url {
+      flex: 1;
+    }
+    #add-url-form input[type="text"] {
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+    .btn {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      white-space: nowrap;
+      text-align: center;
+      cursor: pointer;
+      background-color: #f0f0f0;
+    }
+    .btn-add {
+      flex: 1;
+      background-color: #28a745;
+      color: white;
+      border-color: #28a745;
+    }
+    .btn-remove {
+      background-color: #dc3545;
+      color: white;
+      border-color: #dc3545;
+    }
+    .btn-edit {
+      background-color: #ffc107;
+      color: white;
+      border-color: #ffc107;
+    }
+    .btn-update {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      padding: 8px 5px;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .url-name, .url-address {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      background-color: #f8f9fa;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .url-name {
+      font-weight: bold;
+    }
+    .url-address {
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="title-bar">
+    <h1>Custom Search Options</h1>
+    <div id="manage-data-buttons" class="title-bar-actions">
+      <button id="export-btn" class="btn">Export URLs</button>
+      <button id="import-btn" class="btn">Import URLs</button>
+      <input type="file" id="import-file" accept=".json" style="display: none;">
+    </div>
+  </div>
+  
+  <h2>Add New Search URL</h2>
+  <form id="add-url-form">
+    <input type="text" id="name" placeholder="Name (e.g., Google)">
+    <input type="text" id="url" placeholder="URL (e.g., https://google.com/search?q=%s)">
+    <button type="submit" class="btn btn-add">Add URL</button>
+    <button type="button" id="update-btn" class="btn btn-update" style="display: none;">Update URL</button>
+  </form>
+
+  <h2>Saved URLs</h2>
+  <ul id="url-list"></ul>
+
+  <script src="options.js"></script>
+</body>
+</html>
