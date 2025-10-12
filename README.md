@@ -270,6 +270,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
+## Disclaimer
+This extension is provided “as is” without warranty of any kind, express or implied. Use at your own risk. The authors are not responsible for any data loss, security issues, policy violations, or damages arising from the use of this software.
+
+Third‑party websites and services referenced by your custom search URLs are owned and operated by their respective providers. This project is not affiliated with, endorsed by, or sponsored by any third parties (including Google, Amazon, GitHub, etc.).
+Always review and comply with the terms of service and robots/usage policies of the websites you query.
+Be careful when creating URLs that include sensitive information (such as tokens, secrets, or personal data). Do not store or share sensitive data in plain text.
+If you distribute this extension, you are responsible for ensuring compliance with the Chrome Web Store policies and all applicable laws and regulations in your jurisdiction.
+
 ## 🙏 Acknowledgments
 
 - Built with Chrome Extension Manifest V3
