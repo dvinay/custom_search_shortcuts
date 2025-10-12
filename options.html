@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Custom Search Options</title>
   <style>
     body {
@@ -30,13 +31,28 @@
       width: 100%;
     }
     #add-url-form input#name,
-    #add-url-form input#url {
+    #add-url-form input#url,
+    #add-env-form input#env-name,
+    #add-variable-form input#variable-name,
+    #add-variable-form input#variable-default-value,
+    #add-kv-form input#kv-key,
+    #add-kv-form input#kv-value {
       flex: 1;
     }
-    #add-url-form input[type="text"] {
+    #add-url-form input[type="text"],
+    #add-env-form input[type="text"],
+    #add-variable-form input[type="text"],
+    #add-kv-form input[type="text"] {
         padding: 8px 12px;
         border: 1px solid #ccc;
         box-sizing: border-box;
+    }
+    #add-env-form, #add-variable-form, #add-kv-form {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 20px;
+      width: 100%;
     }
     .btn {
       padding: 8px 12px;
@@ -95,6 +111,83 @@
     .url-address {
       color: #555;
     }
+    .env-variable {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .env-variable .url-name {
+      flex-basis: 200px; /* Adjust as needed */
+      flex-grow: 0;
+      flex-shrink: 0;
+      border: none;
+      background: none;
+      padding-left: 0;
+    }
+    .env-variable input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    .collapsible-section .collapsible-content ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+    .collapsible-section .collapsible-content li {
+      border-top: 1px solid #eee;
+      display: flex; /* Make li a flex container */
+      align-items: center; /* Align items vertically */
+      gap: 10px; /* Add gap between items */
+    }
+
+    .collapsible-section .collapsible-content .url-address {
+      flex-grow: 1; /* Allow the value/input to take up remaining space */
+    }
+
+    .collapsible-section .collapsible-content .button-group {
+      margin-left: auto; /* Push buttons to the right */
+      display: flex;
+      gap: 5px;
+    }
+    .collapsible-section {
+        flex-grow: 1;
+    }
+    .collapsible-header {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-right: 30px; /* Space for the collapse icon */
+    }
+
+    .collapsible-header::after {
+      content: '▼';
+      position: absolute;
+      right: 10px;
+      font-size: 0.8em;
+      transition: transform 0.2s;
+    }
+    .collapsed > .collapsible-header::after {
+      transform: rotate(-90deg);
+    }
+    .collapsible-content {
+      max-height: 500px; /* Adjust as needed */
+      overflow: hidden;
+      transition: max-height 0.3s ease-in-out;
+      padding-left: 20px;
+    }
+    .collapsed > .collapsible-content {
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
   </style>
 </head>
 <body>
@@ -115,8 +208,40 @@
     <button type="button" id="update-btn" class="btn btn-update" style="display: none;">Update URL</button>
   </form>
 
-  <h2>Saved URLs</h2>
-  <ul id="url-list"></ul>
+  <div class="collapsible-section" id="saved-urls-section">
+    <h2 class="collapsible-header">Saved URLs</h2>
+    <div class="collapsible-content">
+      <ul id="url-list"></ul>
+    </div>
+  </div>
+
+  <h2>Add New Variable</h2>
+  <form id="add-variable-form">
+    <input type="text" id="variable-name" placeholder="Variable Name (e.g., url)" required>
+    <input type="text" id="variable-default-value" placeholder="Default Value" required>
+    <button type="submit" class="btn btn-add">Add Variable</button>
+    <button type="button" id="update-variable-btn" class="btn btn-update" style="display: none;">Update Variable</button>
+  </form>
+
+  <div class="collapsible-section" id="saved-variables-section">
+    <h2 class="collapsible-header">Saved Variables</h2>
+    <div class="collapsible-content">
+      <ul id="variable-list"></ul>
+    </div>
+  </div>
+
+  <h2>Add New Environment</h2>
+  <form id="add-env-form">
+    <input type="text" id="env-name" placeholder="Environment Name (e.g., developer)" required>
+    <button type="submit" class="btn btn-add">Add Environment</button>
+  </form>
+
+  <div class="collapsible-section" id="saved-environments-section">
+    <h2 class="collapsible-header">Saved Environments</h2>
+    <div class="collapsible-content">
+      <ul id="env-list"></ul>
+    </div>
+  </div>
 
   <script src="options.js"></script>
 </body>
