@@ -38,7 +38,33 @@ A Chrome extension that adds customizable search shortcuts to your right-click c
 
 6. The extension icon should appear in your toolbar!
 
-## 📖 Usage
+## 📖 Usage Walkthrough (with screenshots)
+
+1. Open the extension popup
+![Open extension popup – Manage Custom Searches](docs/images/1.%20Plugin%20access.png)
+
+2. Options page (initial view)
+![Options page – initial view](docs/images/2.%20Plugin%20page.png)
+
+3. Add a new search URL
+![Add a new search URL](docs/images/3.%20Add%20new%20search%20shortcut.png)
+
+4. Add a variable (for environment-aware URLs)
+![Add a new variable](docs/images/5.%20Add%20a%20new%20variable.png)
+
+5. Create environments
+![Add a new environment](docs/images/6.%20Add%20a%20new%20environment%20.png)
+![New environment with default value](docs/images/7.%20New%20environment%20with%20default%20value.png)
+![Add multiple environments](docs/images/8.%20Add%20multiple%20environments.png)
+
+6. Create a URL that uses a variable
+![Add URL with variable](docs/images/9.%20Add%20url%20with%20variable.png)
+
+7. Use the custom search from the page
+![Use custom shortcut](docs/images/4.%20Use%20custom%20shortcut.png)
+
+8. Use environment-specific search
+![Use custom shortcut with environments and variables](docs/images/11.%20Custom%20shortcut%20use%20with%20environment%20and%20variables.png)
 
 ### Basic Search
 
