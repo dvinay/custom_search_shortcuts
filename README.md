@@ -50,10 +50,13 @@ A Chrome extension that adds customizable search shortcuts to your right-click c
 3. Add a new search URL
 ![Add a new search URL](docs/images/3.%20Add%20new%20search%20shortcut.png)
 
-4. Add a variable (for environment-aware URLs)
+4. Use the custom search from the page
+![Use custom shortcut](docs/images/4.%20Use%20custom%20shortcut.png)
+
+5. Add a variable (for environment-aware URLs)
 ![Add a new variable](docs/images/5.%20Add%20a%20new%20variable.png)
 
-5. Create environments
+6. Create environments
    1. Add a new environment
    ![Add a new environment](docs/images/6.%20Add%20a%20new%20environment%20.png)
 
@@ -63,13 +66,13 @@ A Chrome extension that adds customizable search shortcuts to your right-click c
    3. Add multiple environments
    ![Add multiple environments](docs/images/8.%20Add%20multiple%20environments.png)
 
-6. Create a URL that uses a variable
+7. Create a URL that uses a variable
 ![Add URL with variable](docs/images/9.%20Add%20url%20with%20variable.png)
 
-7. Use the custom search from the page
-![Use custom shortcut](docs/images/4.%20Use%20custom%20shortcut.png)
+9. Final configuration
+![Final configurations](docs/images/10.%20Final%20configurations.png)
 
-8. Use environment-specific search
+10.  Use environment-specific search
 ![Use custom shortcut with environments and variables](docs/images/11.%20Custom%20shortcut%20use%20with%20environment%20and%20variables.png)
 
 ### Basic Search
