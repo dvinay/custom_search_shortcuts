@@ -3,7 +3,7 @@
   "name": "Custom Search Shortcuts",
   "short_name": "Custom Search",
   "version": "1.0.0.0",
-  "description": "Custom search shortcuts added to your right-click context menu. This plugin allows you to quickly search selected text on your favorite websites. It offers fully customizable search engines and shortcuts to enhance productivity.",
+  "description": "Custom search shortcuts allows you to quickly search selected text on your favorite websites.",
   "author": "Vinay Chowdary Duvvada",
   "homepage_url": "https://github.com/dvinay/custom_search_shortcuts",
   "permissions": [
