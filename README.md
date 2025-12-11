@@ -19,7 +19,7 @@ A Chrome extension that adds customizable search shortcuts to your right-click c
 ## 🚀 Installation
 
 ### From Chrome Web Store
-*(Coming soon)*
+[Extensions - Chrome Web Store](https://chromewebstore.google.com/detail/custom-search-shortcuts/hfjpbokofaibcjgnkbheeeiogckdockd)
 
 ### Manual Installation (Developer Mode)
 
