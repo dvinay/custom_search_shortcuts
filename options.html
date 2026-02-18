@@ -177,8 +177,8 @@
     }
     .collapsible-content {
       max-height: 300px; /* Adjust as needed */
-      overflow-x: hidden;
       overflow-y: auto;
+      overflow-x: hidden;
       transition: max-height 0.3s ease-in-out;
       padding-left: 20px;
     }
@@ -202,6 +202,7 @@
   </div>
   
   <h2>Add New Search URL</h2>
+  <p style="color: red; margin: 0 0 10px 0; font-size: 0.9em;">Use <strong>%s</strong> in the URL field as a placeholder for the search text (e.g., https://google.com/search?q=<strong>%s</strong>)</p>
   <form id="add-url-form">
     <input type="text" id="name" placeholder="Name (e.g., Google)">
     <input type="text" id="url" placeholder="URL (e.g., https://google.com/search?q=%s)">
