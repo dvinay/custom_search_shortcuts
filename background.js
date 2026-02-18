@@ -63,6 +63,13 @@ function loadMenuItems() {
         contexts: ['selection'],
         parentId: 'customSearchParent'
       });
+
+      chrome.contextMenus.create({
+        id: 'addCurrentUrl',
+        title: 'Add Current Page to Search List',
+        contexts: ['selection'],
+        parentId: 'customSearchParent'
+      });
     });
   });
 }
@@ -91,6 +98,22 @@ function substituteEnvVars(url, envId, variables, environments) {
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'manage') {
     chrome.runtime.openOptionsPage();
+    return;
+  }
+
+  if (info.menuItemId === 'addCurrentUrl') {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0] &&
+         !(tabs[0].url.startsWith('chrome-extension://') || tabs[0].url.startsWith('chrome://'))) {
+        const tabUrl = tabs[0].url;
+        const tabTitle = tabs[0].title || 'New Search';
+        chrome.tabs.create({
+          url: chrome.runtime.getURL('options.html') +
+            '?prefillName=' + encodeURIComponent(tabTitle) +
+            '&prefillUrl=' + encodeURIComponent(tabUrl)
+        });
+      }
+    });
     return;
   }
 

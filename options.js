@@ -7,6 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const updateBtn = document.getElementById('update-btn');
   let editingUrlId = null;
 
+  // Pre-fill from URL params (when redirected from context menu or popup)
+  const urlParams = new URLSearchParams(window.location.search);
+  const prefillName = urlParams.get('prefillName');
+  const prefillUrl = urlParams.get('prefillUrl');
+  if (prefillName) nameInput.value = prefillName;
+  if (prefillUrl) urlInput.value = prefillUrl;
+
   const exportBtn = document.getElementById('export-btn');
   const importBtn = document.getElementById('import-btn');
   const importFile = document.getElementById('import-file');
