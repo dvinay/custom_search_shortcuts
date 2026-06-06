@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Custom Search Shortcuts",
-  "short_name": "Custom Search",
-  "version": "5.0.0.0",
-  "description": "Custom search shortcuts allows you to quickly search selected text on your favorite websites.",
+  "name": "Custom Search Shortcuts | Right-Click Search",
+  "short_name": "Custom Search Shortcuts",
+  "version": "5.1.0.0",
+  "description": "Right-click to instantly search selected text on Google, GitHub, ChatGPT, or any custom website. Your ultimate productivity tool.",
   "author": "Vinay Chowdary Duvvada",
-  "homepage_url": "https://github.com/vinayduvvada/custom_search_shortcuts",
+  "homepage_url": "https://vinayduvvada.github.io/project.html?id=custom-search-shortcuts",
   "permissions": [
     "contextMenus",
     "storage",
@@ -32,7 +32,7 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content_script.js"],
-      "run_at": "document_start"
+      "run_at": "document_idle"
     }
   ]
 }
