@@ -326,53 +326,140 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // --- Omnibox Handler (keyword: cs) ---
 chrome.omnibox.onInputStarted.addListener(() => {
   chrome.omnibox.setDefaultSuggestion({
-    description: 'Custom Search: Type a search shortcut name followed by your query (e.g., "google hello world")'
+    description: 'Type to filter shortcuts — e.g. "g hello world" or just browse all'
   });
 });
 
+/**
+ * Escapes special XML characters for omnibox description strings.
+ * @param {string} str
+ * @returns {string}
+ */
+function escapeOmni(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/**
+ * Scores a shortcut name against a search prefix for ranking.
+ * Higher score = better match. Returns -1 for no match.
+ * @param {string} name - Shortcut name (lowercase).
+ * @param {string} prefix - User typed prefix (lowercase).
+ * @param {boolean} isFav - Whether the shortcut is a favorite.
+ * @returns {number}
+ */
+function scoreMatch(name, prefix, isFav) {
+  const bonus = isFav ? 1000 : 0;
+  if (name === prefix) return 300 + bonus;         // exact match
+  if (name.startsWith(prefix)) return 200 + bonus;  // starts-with
+  // match start of any word in the name (e.g. "stack" matches "Stack Overflow")
+  const words = name.split(/[\s_\-]+/);
+  if (words.some(w => w.startsWith(prefix))) return 150 + bonus;
+  if (name.includes(prefix)) return 100 + bonus;     // substring
+  // initials match (e.g. "so" matches "Stack Overflow")
+  const initials = words.map(w => w[0]).join('');
+  if (initials.startsWith(prefix)) return 80 + bonus;
+  return -1;
+}
+
+/**
+ * Extracts domain from a URL for display.
+ * @param {string} url
+ * @returns {string}
+ */
+function getDomainForOmni(url) {
+  try { return new URL(url.replace('%s', 'x')).hostname; } catch { return ''; }
+}
+
 chrome.omnibox.onInputChanged.addListener((text, suggest) => {
-  chrome.storage.sync.get({ urls: [] }, (data) => {
+  chrome.storage.sync.get({ urls: [], favorites: [], categories: [] }, (data) => {
     const input = text.trim().toLowerCase();
-    if (!input) return suggest([]);
+    const favSet = new Set(data.favorites || []);
+    const catMap = {};
+    (data.categories || []).forEach(c => { catMap[c.id] = c.name; });
 
+    // Split into shortcut-filter and query parts
     const parts = input.split(/\s+/);
-    const prefix = parts[0];
+    const prefix = parts[0] || '';
+    const queryText = parts.slice(1).join(' ');
 
-    // Suggest URLs whose name starts with the first word
-    const suggestions = data.urls
-        .filter(u => u.name.toLowerCase().startsWith(prefix) || u.name.toLowerCase().includes(prefix))
-        .slice(0, 8)
-        .map(u => {
-          const query = parts.slice(1).join(' ') || '...';
-          const escapedName = u.name.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-          const escapedQuery = query.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-          return {
-            content: u.name + ' ' + (parts.slice(1).join(' ') || ''),
-            description: `Search <match>${escapedName}</match> for <dim>"${escapedQuery}"</dim>`
-          };
-        });
+    // Score and sort all shortcuts
+    let scored;
+    if (!prefix) {
+      // Empty input — show all shortcuts, favorites first
+      scored = data.urls.map(u => ({ item: u, score: favSet.has(u.id) ? 1000 : 0 }));
+    } else {
+      scored = data.urls
+          .map(u => ({ item: u, score: scoreMatch(u.name.toLowerCase(), prefix, favSet.has(u.id)) }))
+          .filter(s => s.score >= 0);
+    }
+    scored.sort((a, b) => b.score - a.score);
+
+    // Update the default suggestion
+    const total = scored.length;
+    if (total > 0) {
+      const topName = escapeOmni(scored[0].item.name);
+      const hint = queryText
+          ? `<match>${topName}</match> — "${escapeOmni(queryText)}"  <dim>(${total} match${total > 1 ? 'es' : ''})</dim>`
+          : `<match>${topName}</match>  <dim>(${total} match${total > 1 ? 'es' : ''} — type query after name)</dim>`;
+      chrome.omnibox.setDefaultSuggestion({ description: hint });
+    } else {
+      chrome.omnibox.setDefaultSuggestion({ description: `No shortcuts matching "${escapeOmni(prefix)}"` });
+    }
+
+    // Build suggestion list — always include ALL matches so arrow-key selection
+    // works even when there is only a single result
+    const suggestions = scored.slice(0, 10).map(s => {
+      const u = s.item;
+      const domain = getDomainForOmni(u.url);
+      const catLabel = u.category && catMap[u.category] ? ` [${escapeOmni(catMap[u.category])}]` : '';
+      const favLabel = favSet.has(u.id) ? '★ ' : '';
+      const q = queryText || '...';
+      return {
+        content: u.name + (queryText ? ' ' + queryText : ''),
+        description: `${favLabel}<match>${escapeOmni(u.name)}</match>${catLabel} <dim>${escapeOmni(domain)}</dim> — "${escapeOmni(q)}"`
+      };
+    });
     suggest(suggestions);
   });
 });
 
 chrome.omnibox.onInputEntered.addListener((text, disposition) => {
-  chrome.storage.sync.get({ urls: [], variables: [], environments: [], settings: {} }, (data) => {
+  chrome.storage.sync.get({ urls: [], variables: [], environments: [], favorites: [], settings: {} }, (data) => {
     const input = text.trim();
     if (!input) return;
 
-    const parts = input.split(/\s+/);
-    const shortcutName = parts[0].toLowerCase();
-    const query = parts.slice(1).join(' ');
+    const favSet = new Set(data.favorites || []);
+    const lowerInput = input.toLowerCase();
 
-    // Try exact name match first (case-insensitive), then prefix, then contains
-    let urlItem = data.urls.find(u => u.name.toLowerCase() === shortcutName);
-    if (!urlItem) urlItem = data.urls.find(u => u.name.toLowerCase().startsWith(shortcutName));
-    if (!urlItem) urlItem = data.urls.find(u => u.name.toLowerCase().includes(shortcutName));
+    // When the user picks a suggestion, content is "Name query..." — match by full name first
+    // Try exact full-name match (the name could be multi-word like "Stack Overflow")
+    let urlItem = data.urls.find(u => lowerInput.startsWith(u.name.toLowerCase() + ' '));
+    let query = urlItem ? input.substring(urlItem.name.length).trim() : '';
 
-    // If still no match but we have a query, use it as the full search text with the first URL
+    // Try exact name match with no trailing query (user selected suggestion with no query yet)
+    if (!urlItem) {
+      urlItem = data.urls.find(u => u.name.toLowerCase() === lowerInput);
+      query = '';
+    }
+
+    if (!urlItem) {
+      // Split first word as shortcut prefix, rest as query
+      const parts = input.split(/\s+/);
+      const shortcutName = parts[0].toLowerCase();
+      query = parts.slice(1).join(' ');
+      urlItem = data.urls.find(u => u.name.toLowerCase() === shortcutName);
+      if (!urlItem) urlItem = data.urls.find(u => u.name.toLowerCase().startsWith(shortcutName));
+      if (!urlItem) urlItem = data.urls.find(u => u.name.toLowerCase().includes(shortcutName));
+
+      // If matched by partial prefix and there's no query text, the user hit Enter
+      // on the default suggestion with just a prefix — don't search yet, open the
+      // URL with an empty query so the user lands on the search page ready to type
+    }
+
+    // If still no match, treat entire input as query and use the top favorite or first URL
     if (!urlItem && data.urls.length > 0) {
-      // Treat entire input as query, use first URL (Google or first available)
-      urlItem = data.urls.find(u => u.name.toLowerCase().includes('google')) || data.urls[0];
+      const favUrls = data.urls.filter(u => favSet.has(u.id));
+      urlItem = favUrls[0] || data.urls.find(u => u.name.toLowerCase().includes('google')) || data.urls[0];
       const resolvedUrl = substituteEnvVars(urlItem.url, 'NO_ENV', data.variables, data.environments);
       const finalUrl = resolvedUrl.replace('%s', encodeURIComponent(input));
       openOmniboxResult(finalUrl, disposition);
@@ -380,9 +467,8 @@ chrome.omnibox.onInputEntered.addListener((text, disposition) => {
     }
 
     if (urlItem) {
-      const searchText = query || '';
       const resolvedUrl = substituteEnvVars(urlItem.url, 'NO_ENV', data.variables, data.environments);
-      const finalUrl = resolvedUrl.replace('%s', encodeURIComponent(searchText));
+      const finalUrl = resolvedUrl.replace('%s', encodeURIComponent(query));
       openOmniboxResult(finalUrl, disposition);
     }
   });

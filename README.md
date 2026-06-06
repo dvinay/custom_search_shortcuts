@@ -207,7 +207,7 @@ custom-search-shortcuts/
 
 2. Update version in `manifest.json`:
    ```json
-   "version": "1.0.1"
+   "version": "<n.0.0.0>"
    ```
 
 3. Test locally:
@@ -418,6 +418,10 @@ The Settings tab (gear icon, rightmost tab) provides centralized configuration:
 
 ## 📊 Version History
 
+### v5.1.0
+- **Omnibox Search**: Type `cs` + `Tab` in the address bar to search using any shortcut (e.g., `cs google hello world`)
+- Auto-suggestions for omnibox search as you type. 
+- Smart matching supports exact, prefix, and contains lookups. A true address-bar search engine shortcut experience, built right in.
 
 ### v5.0.0
 - **Keyboard Shortcuts**: Assign custom hotkeys to any search URL — select text on any page and press the shortcut to instantly search
