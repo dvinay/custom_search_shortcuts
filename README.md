@@ -186,10 +186,10 @@ custom-search-shortcuts/
 
 ### Key Files
 
-- **manifest.json**: Extension metadata and permissions
-- **background.js**: Handles context menu creation, category submenus, separators, environment submenus, and click events (respects tab position setting)
+- **manifest.json**: Extension metadata, permissions, omnibox keyword (`cs`), and content script declaration
+- **background.js**: Handles context menu creation, category submenus, separators, environment submenus, click events, keyboard shortcut messages from content script, and omnibox input/suggestions
 - **content_script.js**: Injected on all pages — listens for user-defined keyboard shortcuts, captures selected text, and messages the background service worker
-- **options.js**: Manages URLs, variables, environments, categories, trash, and settings — includes drag-and-drop reordering, emoji picker, and undo-able delete
+- **options.js**: Manages URLs, variables, environments, categories, trash, and settings — includes drag-and-drop reordering, emoji picker, undo-able delete, and inline keyboard shortcut recorder
 - **popup.js**: Popup with category-grouped shortcut list, search filter, theme cycle button
 - **theme.js**: Shared theme engine — reads/writes `theme` setting, applies `data-theme` attribute, listens for `prefers-color-scheme` changes and cross-page sync
 
@@ -197,16 +197,14 @@ custom-search-shortcuts/
 
 - `contextMenus`: Create right-click menu items
 - `storage`: Save user configurations (synced across devices via `chrome.storage.sync`)
-- `activeTab`: Access current tab info for "Add Current Page" and tab positioning
 - `tabs`: Query tab index for opening shortcuts next to the current tab
-- `scripting`: Required for content script injection (keyboard shortcuts on pages)
 
 ### Building & Testing
 
 1. Make your changes to the code
 
 2. Update version in `manifest.json`:
-   ```json
+   ```
    "version": "<n.0.0.0>"
    ```
 
@@ -415,6 +413,9 @@ The Settings tab (gear icon, rightmost tab) provides centralized configuration:
 | **Trash Retention** | Days to keep deleted items (1–90) | 15 days |
 | **New Tab Position** | Next to current tab / End of tab bar | Next to current |
 | **Default Category** | Auto-select category when adding new URLs | None |
+| **Assigned Keyboard Shortcuts** | View and remove all keyboard shortcut assignments | — |
+| **Omnibox Search** | Reference guide for using `cs` keyword in the address bar | — |
+
 
 ## 📊 Version History
 
@@ -449,7 +450,7 @@ The Settings tab (gear icon, rightmost tab) provides centralized configuration:
 - Dark mode / Light mode / System theme toggle
 
 ### v2.0.0
-- Settings page (theme, tab position, default category)
+- Settings page (theme, trash retention, tab position, default category)
 - New tabs open next to current tab (configurable)
 - Popup grouped by category with emoji headers
 - Drag-and-drop reordering for URLs, categories, and environments

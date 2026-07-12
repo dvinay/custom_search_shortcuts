@@ -482,7 +482,9 @@ chrome.omnibox.onInputEntered.addListener((text, disposition) => {
 function openOmniboxResult(url, disposition) {
   switch (disposition) {
     case 'currentTab':
-      chrome.tabs.update({ url });
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]) chrome.tabs.update(tabs[0].id, { url });
+      });
       break;
     case 'newForegroundTab':
       chrome.tabs.create({ url });
@@ -491,6 +493,8 @@ function openOmniboxResult(url, disposition) {
       chrome.tabs.create({ url, active: false });
       break;
     default:
-      chrome.tabs.update({ url });
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]) chrome.tabs.update(tabs[0].id, { url });
+      });
   }
 }
