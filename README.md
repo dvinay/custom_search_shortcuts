@@ -419,6 +419,15 @@ The Settings tab (gear icon, rightmost tab) provides centralized configuration:
 
 ## 📊 Version History
 
+### v7.0.0
+- Enhancements and bug fixes
+- Query bar for shortcut searches and direct URL access
+- Shortcut sorting feature
+
+### v6.0.0
+- Enhancements and bug fixes
+- Updated permissions section in the manifest
+
 ### v5.1.0
 - **Omnibox Search**: Type `cs` + `Tab` in the address bar to search using any shortcut (e.g., `cs google hello world`)
 - Auto-suggestions for omnibox search as you type. 

@@ -288,6 +288,120 @@
     .shortcuts-list::-webkit-scrollbar { width: 4px; }
     .shortcuts-list::-webkit-scrollbar-track { background: transparent; }
     .shortcuts-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .sort-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-alt);
+    }
+
+    .sort-bar-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      flex: 1;
+    }
+
+    .sort-pill {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .sort-pill:hover { background: var(--border); color: var(--text); }
+    .sort-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .use-count-badge {
+      font-size: 10px;
+      color: var(--text-muted);
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1px 6px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .query-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .query-bar-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    .query-bar input {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      background: var(--surface-alt);
+      color: var(--text);
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .query-bar input:focus { border-color: var(--primary); }
+    .query-bar input::placeholder { color: var(--text-muted); }
+
+    .query-clear-btn {
+      width: 26px;
+      height: 26px;
+      border: none;
+      background: transparent;
+      border-radius: 5px;
+      cursor: pointer;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .query-clear-btn:hover { background: var(--border); color: var(--text); }
+    .query-clear-btn svg { width: 14px; height: 14px; }
+
+    .shortcut-item .copy-btn {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      border: none;
+      background: transparent;
+      border-radius: 5px;
+      cursor: pointer;
+      color: var(--text-muted);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      padding: 0;
+    }
+
+    .shortcut-item:hover .copy-btn { display: flex; }
+    .shortcut-item .copy-btn:hover { background: var(--border); color: var(--text); }
+    .shortcut-item .copy-btn.copied { color: var(--success); display: flex; }
+    .shortcut-item .copy-btn svg { width: 13px; height: 13px; }
   </style>
 </head>
 <body>
@@ -311,6 +425,21 @@
 
 <div class="search-box">
   <input type="text" id="search-input" placeholder="Filter shortcuts...">
+</div>
+
+<div class="sort-bar" id="sort-bar">
+  <span class="sort-bar-label">Sort:</span>
+  <button class="sort-pill active" id="sort-default" title="Default order">Default</button>
+  <button class="sort-pill" id="sort-recent" title="Recently used first">Recent</button>
+  <button class="sort-pill" id="sort-most-used" title="Most used first">Most Used</button>
+</div>
+
+<div class="query-bar" id="query-bar" style="display:none">
+  <span class="query-bar-label">🔍 Query:</span>
+  <input type="text" id="query-input" placeholder="Type your search query...">
+  <button class="query-clear-btn" id="query-clear-btn" title="Clear query">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+  </button>
 </div>
 
 <div class="shortcuts-list" id="shortcuts-list"></div>

@@ -287,13 +287,30 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     const urlItem = data.urls.find(item => item.id === urlId);
     if (urlItem) {
       const resolvedUrl = substituteEnvVars(urlItem.url, envId, data.variables, data.environments);
-      const finalUrl = resolvedUrl.replace('%s', encodeURIComponent(info.selectionText));
+      const finalUrl = resolvedUrl.replaceAll('%s', encodeURIComponent(info.selectionText));
       const tabOpts = { url: finalUrl };
       if ((data.settings.tabPosition || 'next') === 'next') tabOpts.index = tab.index + 1;
       chrome.tabs.create(tabOpts);
+      recordUsage(urlId);
     }
   });
 });
+
+/**
+ * Records a search usage event for a URL into chrome.storage.local.
+ * Stores { lastUsed: timestamp, useCount: number } keyed by urlId.
+ * @param {string} urlId
+ */
+function recordUsage(urlId) {
+  if (!urlId) return;
+  const key = `usage_${urlId}`;
+  chrome.storage.local.get({ [key]: { lastUsed: 0, useCount: 0 } }, (data) => {
+    const entry = data[key];
+    chrome.storage.local.set({
+      [key]: { lastUsed: Date.now(), useCount: (entry.useCount || 0) + 1 }
+    });
+  });
+}
 
 // Listen for changes in storage to update menu items
 chrome.storage.onChanged.addListener((changes, namespace) => {
@@ -313,13 +330,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // For keyboard shortcuts, use the default variable values (no environment)
     const resolvedUrl = substituteEnvVars(urlItem.url, 'NO_ENV', data.variables, data.environments);
-    const finalUrl = resolvedUrl.replace('%s', encodeURIComponent(selectedText));
+    const finalUrl = resolvedUrl.replaceAll('%s', encodeURIComponent(selectedText));
 
     const tabOpts = { url: finalUrl };
     if (sender.tab && (data.settings.tabPosition || 'next') === 'next') {
       tabOpts.index = sender.tab.index + 1;
     }
     chrome.tabs.create(tabOpts);
+    recordUsage(urlId);
   });
 });
 
@@ -461,15 +479,17 @@ chrome.omnibox.onInputEntered.addListener((text, disposition) => {
       const favUrls = data.urls.filter(u => favSet.has(u.id));
       urlItem = favUrls[0] || data.urls.find(u => u.name.toLowerCase().includes('google')) || data.urls[0];
       const resolvedUrl = substituteEnvVars(urlItem.url, 'NO_ENV', data.variables, data.environments);
-      const finalUrl = resolvedUrl.replace('%s', encodeURIComponent(input));
+      const finalUrl = resolvedUrl.replaceAll('%s', encodeURIComponent(input));
       openOmniboxResult(finalUrl, disposition);
+      recordUsage(urlItem.id);
       return;
     }
 
     if (urlItem) {
       const resolvedUrl = substituteEnvVars(urlItem.url, 'NO_ENV', data.variables, data.environments);
-      const finalUrl = resolvedUrl.replace('%s', encodeURIComponent(query));
+      const finalUrl = resolvedUrl.replaceAll('%s', encodeURIComponent(query));
       openOmniboxResult(finalUrl, disposition);
+      recordUsage(urlItem.id);
     }
   });
 });
