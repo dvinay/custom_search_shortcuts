@@ -331,6 +331,14 @@
 
     .btn-update:hover { background: var(--primary-hover); color: white; }
 
+    .btn-test {
+      background: var(--success-bg);
+      color: var(--success);
+      border-color: var(--success);
+    }
+
+    .btn-test:hover { background: var(--success); color: white; }
+
     .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
     /* --- List items --- */
@@ -1839,6 +1847,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
             Update
           </button>
+          <button type="button" id="test-url-btn" class="btn btn-test" style="align-self:flex-end" title="Open URL with sample query 'test' to validate the template">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"/></svg>
+            Test
+          </button>
         </form>
       </div>
     </div>
@@ -2141,6 +2153,21 @@
             <select id="setting-preset-menu-layout">
               <option value="flat">Flat list</option>
               <option value="grouped">Grouped by category</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-row">
+          <div class="setting-label">
+            <h3>Show Query Bar by Default</h3>
+            <p>Always show the search query input in the popup. Shortcut: <kbd>Alt+Q</kbd> (Windows/Linux) / <kbd>⌥Q</kbd> (Mac) to toggle anytime.</p>
+          </div>
+          <div class="setting-control">
+            <select id="setting-popup-query-bar">
+              <option value="false">Hidden (show on demand)</option>
+              <option value="true" selected>Always visible</option>
             </select>
           </div>
         </div>

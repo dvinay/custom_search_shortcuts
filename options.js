@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingTrashDays = document.getElementById('setting-trash-days');
   const settingTabPosition = document.getElementById('setting-tab-position');
   const settingDefaultCategory = document.getElementById('setting-default-category');
-  const DEFAULT_SETTINGS = { trashDays: 15, tabPosition: 'next', defaultCategory: '', contextMenuOrder: ['favorites', 'presets', 'urls', 'categories'], presetMenuLayout: 'flat' };
+  const DEFAULT_SETTINGS = { trashDays: 15, tabPosition: 'next', defaultCategory: '', contextMenuOrder: ['favorites', 'presets', 'urls', 'categories'], presetMenuLayout: 'flat', popupQueryBar: true };
   let currentSettings = { ...DEFAULT_SETTINGS };
 
   const addCategoryForm = document.getElementById('add-category-form');
@@ -414,28 +414,57 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
     if (btn.classList.contains('btn-remove-url')) {
-      chrome.storage.sync.get({ urls: [], trash: [], favorites: [] }, (data) => {
+      chrome.storage.sync.get({ urls: [], trash: [], favorites: [], keyboardShortcuts: [] }, (data) => {
         const urlItem = data.urls.find(item => item.id === urlId);
         if (!urlItem) return;
         const trashItem = { ...urlItem, deletedAt: Date.now() };
         const filteredUrls = data.urls.filter(item => item.id !== urlId);
         const newTrash = [trashItem, ...data.trash];
         const newFavs = data.favorites.filter(id => id !== urlId);
-        chrome.storage.sync.set({ urls: filteredUrls, trash: newTrash, favorites: newFavs }, () => {
+        const newShortcuts = data.keyboardShortcuts.filter(s => s.urlId !== urlId);
+        chrome.storage.sync.set({ urls: filteredUrls, trash: newTrash, favorites: newFavs, keyboardShortcuts: newShortcuts }, () => {
           loadUrls();
           loadTrash();
           loadPresets();
+          loadShortcuts();
           showToast('Moved to trash', () => {
-            chrome.storage.sync.set({ urls: data.urls, trash: data.trash, favorites: data.favorites }, () => {
+            chrome.storage.sync.set({ urls: data.urls, trash: data.trash, favorites: data.favorites, keyboardShortcuts: data.keyboardShortcuts }, () => {
               loadUrls();
               loadTrash();
               loadPresets();
+              loadShortcuts();
               showToast('Deletion undone');
             });
           });
         });
       });
     }
+  });
+
+  document.getElementById('test-url-btn').addEventListener('click', () => {
+    const urlTemplate = urlInput.value.trim();
+    if (!urlTemplate) {
+      showToast('Enter a URL template first');
+      return;
+    }
+    if (!urlTemplate.includes('%s') && !/\{\{.+?\}\}/.test(urlTemplate)) {
+      showToast('URL has no %s placeholder — opening as-is');
+      chrome.tabs.create({ url: urlTemplate });
+      return;
+    }
+    chrome.storage.sync.get({ variables: [] }, (data) => {
+      let resolved = urlTemplate.replace(/\{\{(.+?)\}\}/g, (match, varName) => {
+        const variable = data.variables.find(v => v.name === varName.trim());
+        return variable ? (variable.defaultValue || match) : match;
+      });
+      resolved = resolved.replaceAll('%s', encodeURIComponent('test'));
+      try {
+        new URL(resolved);
+        chrome.tabs.create({ url: resolved });
+      } catch (_) {
+        showToast('Invalid URL after substitution: ' + resolved);
+      }
+    });
   });
 
   updateBtn.addEventListener('click', () => {
@@ -542,25 +571,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (count === 0) return;
     if (!confirm(`Delete ${count} shortcut${count !== 1 ? 's' : ''}? They will be moved to trash.`)) return;
 
-    chrome.storage.sync.get({ urls: [], trash: [], favorites: [] }, (data) => {
+    chrome.storage.sync.get({ urls: [], trash: [], favorites: [], keyboardShortcuts: [] }, (data) => {
       const idsToDelete = new Set(bulkSelectedIds);
       const deletedItems = data.urls.filter(u => idsToDelete.has(u.id)).map(u => ({ ...u, deletedAt: Date.now() }));
       const remainingUrls = data.urls.filter(u => !idsToDelete.has(u.id));
       const newTrash = [...deletedItems, ...data.trash];
       const newFavs = data.favorites.filter(id => !idsToDelete.has(id));
+      const newShortcuts = data.keyboardShortcuts.filter(s => !idsToDelete.has(s.urlId));
 
-      chrome.storage.sync.set({ urls: remainingUrls, trash: newTrash, favorites: newFavs }, () => {
+      chrome.storage.sync.set({ urls: remainingUrls, trash: newTrash, favorites: newFavs, keyboardShortcuts: newShortcuts }, () => {
         const prevUrls = data.urls;
         const prevTrash = data.trash;
         const prevFavs = data.favorites;
+        const prevShortcuts = data.keyboardShortcuts;
         exitBulkMode();
         loadTrash();
         loadPresets();
+        loadShortcuts();
         showToast(`${count} shortcut${count !== 1 ? 's' : ''} moved to trash`, () => {
-          chrome.storage.sync.set({ urls: prevUrls, trash: prevTrash, favorites: prevFavs }, () => {
+          chrome.storage.sync.set({ urls: prevUrls, trash: prevTrash, favorites: prevFavs, keyboardShortcuts: prevShortcuts }, () => {
             loadUrls();
             loadTrash();
             loadPresets();
+            loadShortcuts();
             showToast('Deletion undone');
           });
         });
@@ -1509,9 +1542,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const url = removeBtn.dataset.url;
       const name = removeBtn.dataset.name;
       chrome.storage.sync.get({ urls: [], favorites: [] }, (data) => {
-        const newUrls = data.urls.filter(u => u.url !== url);
-        const removedIds = new Set(data.urls.filter(u => u.url === url).map(u => u.id));
-        const newFavs = data.favorites.filter(id => !removedIds.has(id));
+        const presetItem = data.urls.find(u => u.url === url && u.source === 'preset');
+        if (!presetItem) return;
+        const newUrls = data.urls.filter(u => u.id !== presetItem.id);
+        const newFavs = data.favorites.filter(id => id !== presetItem.id);
         chrome.storage.sync.set({ urls: newUrls, favorites: newFavs }, () => {
           loadPresets();
           loadUrls();
@@ -1573,6 +1607,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const presetMenuLayoutSelect = document.getElementById('setting-preset-menu-layout');
       if (presetMenuLayoutSelect) presetMenuLayoutSelect.value = currentSettings.presetMenuLayout || 'flat';
 
+      const popupQueryBarSelect = document.getElementById('setting-popup-query-bar');
+      if (popupQueryBarSelect) popupQueryBarSelect.value = String(currentSettings.popupQueryBar === true);
+
       renderContextMenuOrder();
     });
   }
@@ -1605,6 +1642,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('setting-preset-menu-layout').addEventListener('change', (e) => {
     saveSettings({ presetMenuLayout: e.target.value });
+  });
+
+  document.getElementById('setting-popup-query-bar').addEventListener('change', (e) => {
+    saveSettings({ popupQueryBar: e.target.value === 'true' });
   });
 
   // --- Context Menu Order ---
@@ -1781,9 +1822,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function addAllPresets(callback) {
     chrome.storage.sync.get({ urls: [] }, (data) => {
       const existingUrls = new Set(data.urls.map(u => u.url));
+      const base = Date.now();
       const newPresets = PRESET_CATALOG
           .filter(p => !existingUrls.has(p.url))
-          .map(p => ({ id: `custom-search-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name: p.name, url: p.url, source: 'preset', presetCategory: p.category }));
+          .map((p, i) => ({ id: `custom-search-${base}-${i}`, name: p.name, url: p.url, source: 'preset', presetCategory: p.category }));
       if (newPresets.length === 0) {
         if (callback) callback(0);
         return;

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Custom Search Shortcuts | Right-Click Search",
   "short_name": "Custom Search Shortcuts",
-  "version": "6.0.0.0",
+  "version": "7.0.0.0",
   "description": "Right-click to instantly search selected text on prelist or any custom website. Your ultimate productivity tool.",
   "author": "Vinay Chowdary Duvvada",
   "homepage_url": "https://vinayduvvada.github.io/project.html?id=custom-search-shortcuts",
