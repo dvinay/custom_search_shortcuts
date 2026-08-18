@@ -54,8 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const starClass = isFavorite ? 'fav-star active' : 'fav-star';
     const useCount = usageEntry ? usageEntry.useCount : 0;
     const countBadge = useCount > 0
-        ? `<span class="use-count-badge" title="${useCount} use${useCount !== 1 ? 's' : ''}">${useCount}×</span>`
-        : '';
+      ? `<span class="use-count-badge" title="${useCount} use${useCount !== 1 ? 's' : ''}">${useCount}×</span>`
+      : '';
     btn.innerHTML = `
       <div class="shortcut-icon" style="background:${color}">${getInitials(item.name)}</div>
       <div class="shortcut-info">
@@ -126,8 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
     shortcutsList.innerHTML = '';
     const favSet = new Set(favorites || []);
     const filtered = filter
-        ? urls.filter(u => u.name.toLowerCase().includes(filter) || u.url.toLowerCase().includes(filter))
-        : urls;
+      ? urls.filter(u => u.name.toLowerCase().includes(filter) || u.url.toLowerCase().includes(filter))
+      : urls;
 
     if (filtered.length === 0 && urls.length === 0) {
       shortcutsList.style.display = 'none';
@@ -146,8 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Sort modes ---
     if (currentSortMode === 'recent') {
       const used = filtered
-          .filter(u => usageMap[u.id] && usageMap[u.id].lastUsed > 0)
-          .sort((a, b) => (usageMap[b.id].lastUsed || 0) - (usageMap[a.id].lastUsed || 0));
+        .filter(u => usageMap[u.id] && usageMap[u.id].lastUsed > 0)
+        .sort((a, b) => (usageMap[b.id].lastUsed || 0) - (usageMap[a.id].lastUsed || 0));
       const unused = filtered.filter(u => !usageMap[u.id] || !usageMap[u.id].lastUsed);
       const recent = used.slice(0, RECENTLY_USED_LIMIT);
       const rest = [...used.slice(RECENTLY_USED_LIMIT), ...unused];
@@ -358,15 +358,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   addCurrentUrlBtn.addEventListener('click', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]) {
-        const tabUrl = tabs[0].url;
-        const tabTitle = tabs[0].title || 'New Search';
-        chrome.tabs.create({
-          url: chrome.runtime.getURL('options.html') +
-              '?prefillName=' + encodeURIComponent(tabTitle) +
-              '&prefillUrl=' + encodeURIComponent(tabUrl)
-        });
-      }
+      if (!tabs[0]) return;
+      const tabUrl = tabs[0].url;
+      const tabTitle = tabs[0].title || 'New Search';
+      const targetUrl = chrome.runtime.getURL('options.html') +
+        '?prefillName=' + encodeURIComponent(tabTitle) +
+        '&prefillUrl=' + encodeURIComponent(tabUrl);
+      const optionsBase = chrome.runtime.getURL('options.html');
+      chrome.tabs.query({}, (allTabs) => {
+        const existingTab = allTabs.find(t => t.url && t.url.startsWith(optionsBase));
+        if (existingTab) {
+          chrome.tabs.update(existingTab.id, { url: targetUrl, active: true });
+        } else {
+          chrome.tabs.create({ url: targetUrl });
+        }
+      });
     });
   });
 
@@ -395,5 +401,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  loadAndRender();
+  chrome.storage.sync.get({ settings: {} }, (data) => {
+    const defaultSort = (data.settings && data.settings.popupDefaultSort) || 'default';
+    if (defaultSort !== 'default') {
+      currentSortMode = defaultSort;
+      sortPills.forEach(p => {
+        const mode = p.id.replace('sort-', '');
+        p.classList.toggle('active', mode === defaultSort);
+      });
+    }
+    loadAndRender();
+  });
 });

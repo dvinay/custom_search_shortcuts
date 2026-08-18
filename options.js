@@ -14,6 +14,77 @@ document.addEventListener('DOMContentLoaded', () => {
   if (prefillName) nameInput.value = prefillName;
   if (prefillUrl) urlInput.value = prefillUrl;
 
+  // --- Smart URL Suggestion ---
+  const SEARCH_PARAM_NAMES = ['q', 'query', 'search', 's', 'text', 'keyword', 'k', 'p', 'term', 'wd', 'w', 'searchTerm', 'searchQuery'];
+  const urlSearchHint = document.getElementById('url-search-hint');
+  const urlSearchHintText = document.getElementById('url-search-hint-text');
+  const urlSearchHintUse = document.getElementById('url-search-hint-use');
+  const urlSearchHintDismiss = document.getElementById('url-search-hint-dismiss');
+  let currentHintUrl = '';
+  let hintDismissed = false;
+
+  function buildSearchSuggestion(rawUrl) {
+    try {
+      const parsed = new URL(rawUrl);
+      if (!['http:', 'https:'].includes(parsed.protocol)) return null;
+      const params = parsed.searchParams;
+      for (const name of SEARCH_PARAM_NAMES) {
+        if (params.has(name) && params.get(name) !== '') {
+          const suggested = new URL(rawUrl);
+          suggested.searchParams.set(name, '%s');
+          return suggested.toString();
+        }
+      }
+      for (const [key, value] of params.entries()) {
+        if (value.length > 1 && /^[a-z0-9 _+%-]+$/i.test(value)) {
+          const suggested = new URL(rawUrl);
+          suggested.searchParams.set(key, '%s');
+          return suggested.toString();
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  function showUrlHint(suggested) {
+    currentHintUrl = suggested;
+    urlSearchHintText.textContent = suggested;
+    urlSearchHint.style.display = 'flex';
+  }
+
+  function hideUrlHint() {
+    urlSearchHint.style.display = 'none';
+    currentHintUrl = '';
+  }
+
+  function checkAndShowUrlHint(rawUrl) {
+    if (hintDismissed || !rawUrl || rawUrl.includes('%s') || currentSettings.smartUrlSuggestion === false) { hideUrlHint(); return; }
+    const suggested = buildSearchSuggestion(rawUrl);
+    if (!suggested || suggested === rawUrl) { hideUrlHint(); return; }
+    chrome.storage.sync.get({ urls: [] }, (data) => {
+      const alreadyExists = data.urls.some(u => u.url === suggested);
+      if (alreadyExists) { hideUrlHint(); return; }
+      showUrlHint(suggested);
+    });
+  }
+
+  urlInput.addEventListener('input', () => {
+    hintDismissed = false;
+    checkAndShowUrlHint(urlInput.value.trim());
+  });
+
+  urlSearchHintUse.addEventListener('click', () => {
+    urlInput.value = currentHintUrl;
+    hideUrlHint();
+    hintDismissed = true;
+    urlInput.dispatchEvent(new Event('input'));
+  });
+
+  urlSearchHintDismiss.addEventListener('click', () => {
+    hintDismissed = true;
+    hideUrlHint();
+  });
+
   const exportBtn = document.getElementById('export-btn');
   const importBtn = document.getElementById('import-btn');
   const importFile = document.getElementById('import-file');
@@ -34,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingTrashDays = document.getElementById('setting-trash-days');
   const settingTabPosition = document.getElementById('setting-tab-position');
   const settingDefaultCategory = document.getElementById('setting-default-category');
-  const DEFAULT_SETTINGS = { trashDays: 15, tabPosition: 'next', defaultCategory: '', contextMenuOrder: ['favorites', 'presets', 'urls', 'categories'], presetMenuLayout: 'flat', popupQueryBar: true };
+  const DEFAULT_SETTINGS = { trashDays: 15, tabPosition: 'next', defaultCategory: '', contextMenuOrder: ['favorites', 'presets', 'urls', 'categories'], presetMenuLayout: 'flat', popupQueryBar: true, popupDefaultSort: 'default', smartUrlSuggestion: true };
   let currentSettings = { ...DEFAULT_SETTINGS };
 
   const addCategoryForm = document.getElementById('add-category-form');
@@ -252,8 +323,8 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         urlEmpty.classList.add('hidden');
         const filtered = searchTerm
-            ? data.urls.filter(u => u.name.toLowerCase().includes(searchTerm) || u.url.toLowerCase().includes(searchTerm))
-            : data.urls;
+          ? data.urls.filter(u => u.name.toLowerCase().includes(searchTerm) || u.url.toLowerCase().includes(searchTerm))
+          : data.urls;
 
         if (filtered.length === 0) {
           urlNoResults.classList.remove('hidden');
@@ -270,18 +341,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const color = getIconColor(item.name);
             const isFav = favSet.has(item.id);
             const catName = item.category && categoryMap[item.category]
-                ? categoryMap[item.category]
-                : '';
+              ? categoryMap[item.category]
+              : '';
             const catBadge = catName
-                ? `<span class="category-badge">${catName}</span>`
-                : '';
+              ? `<span class="category-badge">${catName}</span>`
+              : '';
             const isChecked = bulkSelectedIds.has(item.id);
             const shortcutEntry = (data.keyboardShortcuts || []).find(s => s.urlId === item.id);
             const hasShortcut = !!shortcutEntry;
             const shortcutBadge = hasShortcut ? '<span class="shortcut-badge-inline"></span>' : '';
             const shortcutTitle = hasShortcut
-                ? `Shortcut: ${shortcutEntry.shortcut} (click to change)`
-                : 'Assign keyboard shortcut';
+              ? `Shortcut: ${shortcutEntry.shortcut} (click to change)`
+              : 'Assign keyboard shortcut';
             div.innerHTML = `
               <div class="bulk-checkbox${isChecked ? ' checked' : ''}" data-id="${item.id}"></div>
               <div class="drag-handle" title="Drag to reorder">${DRAG_HANDLE_SVG}</div>
@@ -344,6 +415,8 @@ document.addEventListener('DOMContentLoaded', () => {
           nameInput.value = '';
           urlInput.value = '';
           urlCategorySelect.value = '';
+          hintDismissed = false;
+          hideUrlHint();
           loadUrls();
           showToast('URL added successfully');
         });
@@ -486,6 +559,8 @@ document.addEventListener('DOMContentLoaded', () => {
           urlInput.value = '';
           urlCategorySelect.value = '';
           editingUrlId = null;
+          hintDismissed = false;
+          hideUrlHint();
           addUrlForm.querySelector('.btn-primary').classList.remove('hidden');
           updateBtn.classList.add('hidden');
           loadUrls();
@@ -742,7 +817,7 @@ document.addEventListener('DOMContentLoaded', () => {
           return showToast('Another variable with this name already exists');
         }
         const newVariables = data.variables.map(v =>
-            v.name === editingVariable ? { ...v, name, defaultValue } : v
+          v.name === editingVariable ? { ...v, name, defaultValue } : v
         );
         const updatedEnvs = data.environments.map(env => {
           env.values = env.values.map(val => val.key === editingVariable ? { ...val, key: name } : val);
@@ -780,8 +855,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const savedValue = env.values.find(v => v.key === variable.name);
             const value = savedValue ? savedValue.value : '';
             const displayValue = value
-                ? `<span class="env-var-value">${value}</span>`
-                : `<span class="env-var-value env-var-default">default: ${variable.defaultValue}</span>`;
+              ? `<span class="env-var-value">${value}</span>`
+              : `<span class="env-var-value env-var-default">default: ${variable.defaultValue}</span>`;
             return `
               <div class="env-var-row" data-env-id="${env.id}" data-variable-name="${variable.name}">
                 <span class="env-var-key">${variable.name}</span>
@@ -905,7 +980,7 @@ document.addEventListener('DOMContentLoaded', () => {
           return showToast('Another environment with this name already exists');
         }
         const newEnvironments = data.environments.map(env =>
-            env.id === envId ? { ...env, name: newName } : env
+          env.id === envId ? { ...env, name: newName } : env
         );
         chrome.storage.sync.set({ environments: newEnvironments }, () => {
           loadEnvs();
@@ -1080,7 +1155,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const icon = categoryEmojiInput.value || '📁';
         const newCategories = data.categories.map(c =>
-            c.id === editingCategoryId ? { ...c, name, icon } : c
+          c.id === editingCategoryId ? { ...c, name, icon } : c
         );
         chrome.storage.sync.set({ categories: newCategories }, () => {
           categoryNameInput.value = '';
@@ -1459,9 +1534,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (searchTerm) {
         filtered = filtered.filter(p =>
-            p.name.toLowerCase().includes(searchTerm) ||
-            p.url.toLowerCase().includes(searchTerm) ||
-            p.category.toLowerCase().includes(searchTerm)
+          p.name.toLowerCase().includes(searchTerm) ||
+          p.url.toLowerCase().includes(searchTerm) ||
+          p.category.toLowerCase().includes(searchTerm)
         );
       }
 
@@ -1500,15 +1575,15 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="preset-card-actions">
               ${isAdded
-              ? `<button class="preset-remove-btn" data-url="${preset.url}" data-name="${preset.name}">
+                ? `<button class="preset-remove-btn" data-url="${preset.url}" data-name="${preset.name}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
                     Remove
                   </button>`
-              : `<button class="preset-add-btn" data-name="${preset.name}" data-url="${preset.url}" data-category="${preset.category}">
+                : `<button class="preset-add-btn" data-name="${preset.name}" data-url="${preset.url}" data-category="${preset.category}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                     Add
                   </button>`
-          }
+              }
             </div>
           `;
           presetGrid.appendChild(card);
@@ -1559,31 +1634,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Drag and Drop Reordering ---
   enableDragReorder(
-      urlList, '.list-item',
-      el => el.dataset.id,
-      'urls', 'id',
-      loadUrls
+    urlList, '.list-item',
+    el => el.dataset.id,
+    'urls', 'id',
+    loadUrls
   );
 
   enableDragReorder(
-      variableList, '.list-item',
-      el => el.dataset.variableName,
-      'variables', 'name',
-      () => { loadVariables(); loadEnvs(); }
+    variableList, '.list-item',
+    el => el.dataset.variableName,
+    'variables', 'name',
+    () => { loadVariables(); loadEnvs(); }
   );
 
   enableDragReorder(
-      envList, '.env-section',
-      el => el.dataset.envId,
-      'environments', 'id',
-      loadEnvs
+    envList, '.env-section',
+    el => el.dataset.envId,
+    'environments', 'id',
+    loadEnvs
   );
 
   enableDragReorder(
-      categoryList, '.list-item',
-      el => el.dataset.id,
-      'categories', 'id',
-      () => { loadCategories(); loadUrls(); }
+    categoryList, '.list-item',
+    el => el.dataset.id,
+    'categories', 'id',
+    () => { loadCategories(); loadUrls(); }
   );
 
   // --- Settings Management ---
@@ -1609,6 +1684,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const popupQueryBarSelect = document.getElementById('setting-popup-query-bar');
       if (popupQueryBarSelect) popupQueryBarSelect.value = String(currentSettings.popupQueryBar === true);
+
+      const popupDefaultSortSelect = document.getElementById('setting-popup-default-sort');
+      if (popupDefaultSortSelect) popupDefaultSortSelect.value = currentSettings.popupDefaultSort || 'default';
+
+      const smartUrlSuggestionSelect = document.getElementById('setting-smart-url-suggestion');
+      if (smartUrlSuggestionSelect) smartUrlSuggestionSelect.value = String(currentSettings.smartUrlSuggestion !== false);
+
+      if (prefillUrl) {
+        checkAndShowUrlHint(prefillUrl);
+        const addFormCard = document.getElementById('add-url-form');
+        if (addFormCard) {
+          addFormCard.closest('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          urlInput.focus();
+        }
+      }
 
       renderContextMenuOrder();
     });
@@ -1646,6 +1736,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('setting-popup-query-bar').addEventListener('change', (e) => {
     saveSettings({ popupQueryBar: e.target.value === 'true' });
+  });
+
+  document.getElementById('setting-popup-default-sort').addEventListener('change', (e) => {
+    saveSettings({ popupDefaultSort: e.target.value });
+  });
+
+  document.getElementById('setting-smart-url-suggestion').addEventListener('change', (e) => {
+    const enabled = e.target.value === 'true';
+    saveSettings({ smartUrlSuggestion: enabled });
+    if (!enabled) hideUrlHint();
   });
 
   // --- Context Menu Order ---
@@ -1824,8 +1924,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const existingUrls = new Set(data.urls.map(u => u.url));
       const base = Date.now();
       const newPresets = PRESET_CATALOG
-          .filter(p => !existingUrls.has(p.url))
-          .map((p, i) => ({ id: `custom-search-${base}-${i}`, name: p.name, url: p.url, source: 'preset', presetCategory: p.category }));
+        .filter(p => !existingUrls.has(p.url))
+        .map((p, i) => ({ id: `custom-search-${base}-${i}`, name: p.name, url: p.url, source: 'preset', presetCategory: p.category }));
       if (newPresets.length === 0) {
         if (callback) callback(0);
         return;
@@ -1852,8 +1952,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const isLast = tutorialStep === TUTORIAL_STEPS.length - 1;
     tutorialNext.innerHTML = isLast
-        ? 'Get Started <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
-        : 'Next <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
+      ? 'Get Started <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
+      : 'Next <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
     tutorialSkip.textContent = isLast ? '' : 'Skip tutorial';
     tutorialSkip.style.visibility = isLast ? 'hidden' : 'visible';
 
@@ -1938,11 +2038,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!shortcutStr) return '';
     const keys = shortcutStr.split('+');
     return '<span class="shortcut-display">' +
-        keys.map((k, i) => {
-          const badge = `<span class="shortcut-key">${k}</span>`;
-          return i < keys.length - 1 ? badge + '<span class="shortcut-plus">+</span>' : badge;
-        }).join('') +
-        '</span>';
+      keys.map((k, i) => {
+        const badge = `<span class="shortcut-key">${k}</span>`;
+        return i < keys.length - 1 ? badge + '<span class="shortcut-plus">+</span>' : badge;
+      }).join('') +
+      '</span>';
   }
 
   /**

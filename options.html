@@ -818,6 +818,63 @@
       font-size: 12px;
     }
 
+    /* --- URL Search Hint --- */
+    .url-search-hint {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      padding: 7px 10px;
+      background: var(--info-bg);
+      border: 1px solid var(--info);
+      border-radius: var(--radius);
+      font-size: 12px;
+      color: var(--info);
+      flex-wrap: wrap;
+    }
+
+    .url-search-hint code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      word-break: break-all;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .url-search-hint-use {
+      border: 1px solid var(--info);
+      background: transparent;
+      color: var(--info);
+      border-radius: 5px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: inherit;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .url-search-hint-use:hover {
+      background: var(--info);
+      color: white;
+    }
+
+    .url-search-hint-dismiss {
+      border: none;
+      background: transparent;
+      color: var(--info);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 2px;
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+
+    .url-search-hint-dismiss:hover { opacity: 1; }
+
     .var-suggestion-item .var-default {
       color: var(--text-muted);
       font-size: 12px;
@@ -1744,512 +1801,549 @@
   </style>
 </head>
 <body>
-<!-- Top Bar -->
-<div class="top-bar">
-  <div class="top-bar-inner">
-    <h1>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      Custom Search Shortcuts
-    </h1>
-    <div class="top-bar-actions">
-      <button id="help-btn" class="btn" title="Show tutorial">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        Help
-      </button>
-      <button id="import-btn" class="btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Import
-      </button>
-      <button id="export-btn" class="btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Export
-      </button>
-      <input type="file" id="import-file" accept=".json">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-inner">
+      <h1>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        Custom Search Shortcuts
+      </h1>
+      <div class="top-bar-actions">
+        <button id="help-btn" class="btn" title="Show tutorial">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Help
+        </button>
+        <button id="import-btn" class="btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Import
+        </button>
+        <button id="export-btn" class="btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Export
+        </button>
+        <input type="file" id="import-file" accept=".json">
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Tab Bar -->
-<div class="tab-bar">
-  <div class="tab-bar-inner">
-    <button class="tab-btn active" data-tab="urls">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-      Search URLs
-      <span class="badge" id="url-count">0</span>
-    </button>
-    <button class="tab-btn" data-tab="presets">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-      Presets
-      <span class="badge" id="preset-count">0</span>
-    </button>
-    <button class="tab-btn" data-tab="variables">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-      Variables
-      <span class="badge" id="variable-count">0</span>
-    </button>
-    <button class="tab-btn" data-tab="categories">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-      Categories
-      <span class="badge" id="category-count">0</span>
-    </button>
-    <button class="tab-btn" data-tab="environments">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-      Environments
-      <span class="badge" id="env-count">0</span>
-    </button>
-    <button class="tab-btn" data-tab="trash">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-      Trash
-      <span class="badge" id="trash-count">0</span>
-    </button>
-    <button class="tab-btn" data-tab="settings" style="margin-left:auto">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-      Settings
-    </button>
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <div class="tab-bar-inner">
+      <button class="tab-btn active" data-tab="urls">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        Search URLs
+        <span class="badge" id="url-count">0</span>
+      </button>
+      <button class="tab-btn" data-tab="presets">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+        Presets
+        <span class="badge" id="preset-count">0</span>
+      </button>
+      <button class="tab-btn" data-tab="variables">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        Variables
+        <span class="badge" id="variable-count">0</span>
+      </button>
+      <button class="tab-btn" data-tab="categories">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        Categories
+        <span class="badge" id="category-count">0</span>
+      </button>
+      <button class="tab-btn" data-tab="environments">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        Environments
+        <span class="badge" id="env-count">0</span>
+      </button>
+      <button class="tab-btn" data-tab="trash">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        Trash
+        <span class="badge" id="trash-count">0</span>
+      </button>
+      <button class="tab-btn" data-tab="settings" style="margin-left:auto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        Settings
+      </button>
+    </div>
   </div>
-</div>
 
-<!-- Main Content -->
-<div class="main-content">
+  <!-- Main Content -->
+  <div class="main-content">
 
-  <!-- URLs Tab -->
-  <div class="tab-panel active" id="tab-urls">
-    <div class="card">
-      <div class="card-header">
-        <h2>Add Search URL</h2>
-      </div>
-      <div class="card-body">
-        <div class="info-tip">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          <span>Use <code>%s</code> as the search text placeholder. Use <code>{{VAR_NAME}}</code> for environment variables.<br>Example: <code>https://google.com/search?q=%s&lang={{LANG}}</code></span>
+    <!-- URLs Tab -->
+    <div class="tab-panel active" id="tab-urls">
+      <div class="card">
+        <div class="card-header">
+          <h2>Add Search URL</h2>
         </div>
-        <form id="add-url-form" class="form-row">
-          <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" id="name" placeholder="e.g., Google Search">
+        <div class="card-body">
+          <div class="info-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span>Use <code>%s</code> as the search text placeholder. Use <code>{{VAR_NAME}}</code> for environment variables.<br>Example: <code>https://google.com/search?q=%s&lang={{LANG}}</code></span>
           </div>
-          <div class="form-group" style="flex:2;position:relative">
-            <label for="url">URL Template</label>
-            <input type="text" id="url" placeholder="e.g., https://google.com/search?q=%s" autocomplete="off">
-            <div id="var-suggestions" class="var-suggestions hidden"></div>
+          <form id="add-url-form" class="form-row">
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" placeholder="e.g., Google Search">
+            </div>
+            <div class="form-group" style="flex:2;position:relative">
+              <label for="url">URL Template</label>
+              <input type="text" id="url" placeholder="e.g., https://google.com/search?q=%s" autocomplete="off">
+              <div id="var-suggestions" class="var-suggestions hidden"></div>
+              <div id="url-search-hint" class="url-search-hint">
+                <span>💡 Suggested search URL:</span>
+                <code id="url-search-hint-text"></code>
+                <button type="button" class="url-search-hint-use" id="url-search-hint-use">Use this</button>
+                <button type="button" class="url-search-hint-dismiss" id="url-search-hint-dismiss" title="Dismiss">✕</button>
+              </div>
+            </div>
+            <div class="form-group" style="flex:0 0 140px">
+              <label for="url-category">Category</label>
+              <select id="url-category">
+                <option value="">None</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="align-self:flex-end">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Add
+            </button>
+            <button type="button" id="update-btn" class="btn btn-update hidden" style="align-self:flex-end">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              Update
+            </button>
+            <button type="button" id="test-url-btn" class="btn btn-test" style="align-self:flex-end" title="Open URL with sample query 'test' to validate the template">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"/></svg>
+              Test
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="card-header">
+          <h2>Saved URLs</h2>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button id="bulk-select-toggle" class="bulk-select-toggle" title="Select multiple URLs">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              Select
+            </button>
+            <div class="search-filter">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="text" id="url-search" placeholder="Filter URLs...">
+            </div>
           </div>
-          <div class="form-group" style="flex:0 0 140px">
-            <label for="url-category">Category</label>
-            <select id="url-category">
-              <option value="">None</option>
+        </div>
+        <div id="bulk-bar" class="bulk-bar">
+          <div class="bulk-bar-info">
+            <div id="bulk-select-all" class="select-all-checkbox" title="Select all"></div>
+            <span id="bulk-count">0 selected</span>
+          </div>
+          <div class="bulk-bar-actions">
+            <select id="bulk-move-category" class="bulk-move-select" title="Move to category">
+              <option value="" disabled selected>Move to...</option>
             </select>
+            <button id="bulk-export-btn" class="bulk-btn" title="Export selected">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Export
+            </button>
+            <button id="bulk-delete-btn" class="bulk-btn bulk-btn-danger" title="Delete selected">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              Delete
+            </button>
+            <button id="bulk-cancel-btn" class="bulk-btn bulk-btn-cancel" title="Cancel selection">Cancel</button>
           </div>
-          <button type="submit" class="btn btn-primary" style="align-self:flex-end">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-            Add
-          </button>
-          <button type="button" id="update-btn" class="btn btn-update hidden" style="align-self:flex-end">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-            Update
-          </button>
-          <button type="button" id="test-url-btn" class="btn btn-test" style="align-self:flex-end" title="Open URL with sample query 'test' to validate the template">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"/></svg>
-            Test
-          </button>
-        </form>
+        </div>
+        <div id="url-list"></div>
+        <div id="url-no-results" class="empty-list hidden">
+          <p>No URLs match your filter.</p>
+        </div>
+        <div id="url-empty" class="empty-list hidden">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <p>No search URLs added yet. Add one above to get started.</p>
+        </div>
       </div>
     </div>
 
-    <div class="card" style="margin-top:16px">
-      <div class="card-header">
-        <h2>Saved URLs</h2>
-        <div style="display:flex;align-items:center;gap:8px">
-          <button id="bulk-select-toggle" class="bulk-select-toggle" title="Select multiple URLs">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            Select
-          </button>
+    <!-- Presets Tab -->
+    <div class="tab-panel" id="tab-presets">
+      <div class="card">
+        <div class="card-header">
+          <h2>Search Engine Presets</h2>
           <div class="search-filter">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" id="url-search" placeholder="Filter URLs...">
+            <input type="text" id="preset-search" placeholder="Filter presets...">
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="info-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span>Browse popular search engines below and click <strong>Add</strong> to instantly add them to your Search URLs. Already added presets are marked with a checkmark.</span>
+          </div>
+          <div class="preset-category-filters" id="preset-category-filters"></div>
+          <div class="preset-grid" id="preset-grid"></div>
+          <div id="preset-no-results" class="empty-list hidden">
+            <p>No presets match your filter.</p>
           </div>
         </div>
       </div>
-      <div id="bulk-bar" class="bulk-bar">
-        <div class="bulk-bar-info">
-          <div id="bulk-select-all" class="select-all-checkbox" title="Select all"></div>
-          <span id="bulk-count">0 selected</span>
-        </div>
-        <div class="bulk-bar-actions">
-          <select id="bulk-move-category" class="bulk-move-select" title="Move to category">
-            <option value="" disabled selected>Move to...</option>
-          </select>
-          <button id="bulk-export-btn" class="bulk-btn" title="Export selected">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Export
-          </button>
-          <button id="bulk-delete-btn" class="bulk-btn bulk-btn-danger" title="Delete selected">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-            Delete
-          </button>
-          <button id="bulk-cancel-btn" class="bulk-btn bulk-btn-cancel" title="Cancel selection">Cancel</button>
-        </div>
-      </div>
-      <div id="url-list"></div>
-      <div id="url-no-results" class="empty-list hidden">
-        <p>No URLs match your filter.</p>
-      </div>
-      <div id="url-empty" class="empty-list hidden">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-        <p>No search URLs added yet. Add one above to get started.</p>
-      </div>
     </div>
-  </div>
 
-  <!-- Presets Tab -->
-  <div class="tab-panel" id="tab-presets">
-    <div class="card">
-      <div class="card-header">
-        <h2>Search Engine Presets</h2>
-        <div class="search-filter">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" id="preset-search" placeholder="Filter presets...">
+    <!-- Variables Tab -->
+    <div class="tab-panel" id="tab-variables">
+      <div class="card">
+        <div class="card-header">
+          <h2>Add Variable</h2>
         </div>
-      </div>
-      <div class="card-body">
-        <div class="info-tip">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          <span>Browse popular search engines below and click <strong>Add</strong> to instantly add them to your Search URLs. Already added presets are marked with a checkmark.</span>
-        </div>
-        <div class="preset-category-filters" id="preset-category-filters"></div>
-        <div class="preset-grid" id="preset-grid"></div>
-        <div id="preset-no-results" class="empty-list hidden">
-          <p>No presets match your filter.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Variables Tab -->
-  <div class="tab-panel" id="tab-variables">
-    <div class="card">
-      <div class="card-header">
-        <h2>Add Variable</h2>
-      </div>
-      <div class="card-body">
-        <div class="info-tip">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          <span>Variables let you parameterize your URLs. Reference them in URLs as <code>{{VAR_NAME}}</code>. Each environment can override the default value.</span>
-        </div>
-        <form id="add-variable-form" class="form-row">
-          <div class="form-group">
-            <label for="variable-name">Variable Name</label>
-            <input type="text" id="variable-name" placeholder="e.g., INSTANCE" required>
+        <div class="card-body">
+          <div class="info-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span>Variables let you parameterize your URLs. Reference them in URLs as <code>{{VAR_NAME}}</code>. Each environment can override the default value.</span>
           </div>
-          <div class="form-group">
-            <label for="variable-default-value">Default Value</label>
-            <input type="text" id="variable-default-value" placeholder="e.g., prod001" required>
-          </div>
-          <button type="submit" class="btn btn-primary" style="align-self:flex-end">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-            Add
-          </button>
-          <button type="button" id="update-variable-btn" class="btn btn-update hidden" style="align-self:flex-end">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-            Update
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:16px">
-      <div class="card-header">
-        <h2>Saved Variables</h2>
-      </div>
-      <div id="variable-list"></div>
-      <div id="variable-empty" class="empty-list hidden">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-        <p>No variables defined yet. Add one to make your URLs dynamic.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Categories Tab -->
-  <div class="tab-panel" id="tab-categories">
-    <div class="card">
-      <div class="card-header">
-        <h2>Add Category</h2>
-      </div>
-      <div class="card-body">
-        <div class="info-tip">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          <span>Categories let you group your search shortcuts into folders (e.g., "Work", "Dev Tools", "Social"). Categorized URLs appear as nested submenus in the right-click context menu.</span>
-        </div>
-        <form id="add-category-form" class="form-row">
-          <div class="form-group" style="flex:0 0 auto">
-            <label>Icon</label>
-            <div class="emoji-picker-wrapper">
-              <button type="button" class="emoji-picker-btn" id="category-emoji-btn" title="Pick an icon">📁</button>
-              <div class="emoji-grid hidden" id="category-emoji-grid"></div>
+          <form id="add-variable-form" class="form-row">
+            <div class="form-group">
+              <label for="variable-name">Variable Name</label>
+              <input type="text" id="variable-name" placeholder="e.g., INSTANCE" required>
             </div>
-            <input type="hidden" id="category-emoji" value="📁">
-          </div>
-          <div class="form-group">
-            <label for="category-name">Category Name</label>
-            <input type="text" id="category-name" placeholder="e.g., Dev Tools" required>
-          </div>
-          <button type="submit" class="btn btn-primary" style="align-self:flex-end">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-            Add
-          </button>
-          <button type="button" id="update-category-btn" class="btn btn-update hidden" style="align-self:flex-end">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-            Update
-          </button>
-        </form>
+            <div class="form-group">
+              <label for="variable-default-value">Default Value</label>
+              <input type="text" id="variable-default-value" placeholder="e.g., prod001" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="align-self:flex-end">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Add
+            </button>
+            <button type="button" id="update-variable-btn" class="btn btn-update hidden" style="align-self:flex-end">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              Update
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="card-header">
+          <h2>Saved Variables</h2>
+        </div>
+        <div id="variable-list"></div>
+        <div id="variable-empty" class="empty-list hidden">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          <p>No variables defined yet. Add one to make your URLs dynamic.</p>
+        </div>
       </div>
     </div>
 
-    <div class="card" style="margin-top:16px">
-      <div class="card-header">
-        <h2>Saved Categories</h2>
+    <!-- Categories Tab -->
+    <div class="tab-panel" id="tab-categories">
+      <div class="card">
+        <div class="card-header">
+          <h2>Add Category</h2>
+        </div>
+        <div class="card-body">
+          <div class="info-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span>Categories let you group your search shortcuts into folders (e.g., "Work", "Dev Tools", "Social"). Categorized URLs appear as nested submenus in the right-click context menu.</span>
+          </div>
+          <form id="add-category-form" class="form-row">
+            <div class="form-group" style="flex:0 0 auto">
+              <label>Icon</label>
+              <div class="emoji-picker-wrapper">
+                <button type="button" class="emoji-picker-btn" id="category-emoji-btn" title="Pick an icon">📁</button>
+                <div class="emoji-grid hidden" id="category-emoji-grid"></div>
+              </div>
+              <input type="hidden" id="category-emoji" value="📁">
+            </div>
+            <div class="form-group">
+              <label for="category-name">Category Name</label>
+              <input type="text" id="category-name" placeholder="e.g., Dev Tools" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="align-self:flex-end">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Add
+            </button>
+            <button type="button" id="update-category-btn" class="btn btn-update hidden" style="align-self:flex-end">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              Update
+            </button>
+          </form>
+        </div>
       </div>
-      <div id="category-list"></div>
-      <div id="category-empty" class="empty-list hidden">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-        <p>No categories created yet. Add one to organize your search shortcuts.</p>
+
+      <div class="card" style="margin-top:16px">
+        <div class="card-header">
+          <h2>Saved Categories</h2>
+        </div>
+        <div id="category-list"></div>
+        <div id="category-empty" class="empty-list hidden">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          <p>No categories created yet. Add one to organize your search shortcuts.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trash Tab -->
+    <div class="tab-panel" id="tab-trash">
+      <div class="card">
+        <div class="card-header">
+          <h2>Recently Deleted</h2>
+          <button id="empty-trash-btn" class="btn btn-danger" style="padding:6px 14px;font-size:12px;border:1px solid var(--danger);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            Empty Trash
+          </button>
+        </div>
+        <div class="info-tip" style="margin:16px 20px 0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          <span>Deleted shortcuts are kept here for <strong id="trash-retention-display">15 days</strong> before being permanently removed. You can restore them at any time.</span>
+        </div>
+        <div id="trash-list"></div>
+        <div id="trash-empty" class="empty-list hidden">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          <p>Trash is empty. Deleted shortcuts will appear here.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Environments Tab -->
+    <div class="tab-panel" id="tab-environments">
+      <div class="card">
+        <div class="card-header">
+          <h2>Add Environment</h2>
+        </div>
+        <div class="card-body">
+          <div class="info-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span>Environments let you switch variable values per context (e.g., dev, staging, prod). When a URL uses <code>{{VAR}}</code>, you'll be able to choose an environment from the right-click menu.</span>
+          </div>
+          <form id="add-env-form" class="form-row">
+            <div class="form-group">
+              <label for="env-name">Environment Name</label>
+              <input type="text" id="env-name" placeholder="e.g., PRODUCTION" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="align-self:flex-end">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Add
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="card-header">
+          <h2>Saved Environments</h2>
+        </div>
+        <div id="env-list"></div>
+        <div id="env-empty" class="empty-list hidden">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          <p>No environments created yet. Add one to manage variable overrides.</p>
+        </div>
+      </div>
+    </div>
+    <!-- Settings Tab -->
+    <div class="tab-panel" id="tab-settings">
+      <div class="card">
+        <div class="card-header">
+          <h2>Preferences</h2>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-row">
+            <div class="setting-label">
+              <h3>Theme</h3>
+              <p>Choose how the extension looks.</p>
+            </div>
+            <div class="setting-control">
+              <div class="theme-toggle">
+                <button class="theme-btn" data-theme="light" title="Light">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                </button>
+                <button class="theme-btn" data-theme="system" title="System">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </button>
+                <button class="theme-btn" data-theme="dark" title="Dark">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-row">
+            <div class="setting-label">
+              <h3>Trash Retention</h3>
+              <p>Days to keep deleted shortcuts before permanent removal.</p>
+            </div>
+            <div class="setting-control">
+              <input type="number" id="setting-trash-days" min="1" max="90" value="15"> days
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-row">
+            <div class="setting-label">
+              <h3>New Tab Position</h3>
+              <p>Where to open shortcut links.</p>
+            </div>
+            <div class="setting-control">
+              <select id="setting-tab-position">
+                <option value="next">Next to current tab</option>
+                <option value="end">End of tab bar</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-row">
+            <div class="setting-label">
+              <h3>Default Category</h3>
+              <p>Auto-select this category when adding new URLs.</p>
+            </div>
+            <div class="setting-control">
+              <select id="setting-default-category">
+                <option value="">None</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-row">
+            <div class="setting-label">
+              <h3>Preset Menu Layout</h3>
+              <p>How presets appear in the right-click context menu.</p>
+            </div>
+            <div class="setting-control">
+              <select id="setting-preset-menu-layout">
+                <option value="flat">Flat list</option>
+                <option value="grouped">Grouped by category</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-row">
+            <div class="setting-label">
+              <h3>Show Query Bar by Default</h3>
+              <p>Always show the search query input in the popup. Shortcut: <kbd>Alt+Q</kbd> (Windows/Linux) / <kbd>⌥Q</kbd> (Mac) to toggle anytime.</p>
+            </div>
+            <div class="setting-control">
+              <select id="setting-popup-query-bar">
+                <option value="false">Hidden (show on demand)</option>
+                <option value="true" selected>Always visible</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-row">
+            <div class="setting-label">
+              <h3>Default Sort in Popup</h3>
+              <p>The sort order applied when the popup first opens.</p>
+            </div>
+            <div class="setting-control">
+              <select id="setting-popup-default-sort">
+                <option value="default">Default (favorites &amp; categories)</option>
+                <option value="recent">Recent (last used first)</option>
+                <option value="most-used">Most Used (by click count)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-row">
+            <div class="setting-label">
+              <h3>Smart URL Suggestion</h3>
+              <p>When adding a URL, automatically suggest a search template by replacing the query parameter value with <code>%s</code>. Disable to always use the URL as-is.</p>
+            </div>
+            <div class="setting-control">
+              <select id="setting-smart-url-suggestion">
+                <option value="true" selected>Enabled</option>
+                <option value="false">Disabled (copy URL as-is)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Right-Click Menu Order</h3>
+          <p>Drag to reorder how sections appear in the right-click context menu.</p>
+          <div id="context-menu-order" class="context-menu-order-list"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="card-header">
+          <h2>Assigned Keyboard Shortcuts</h2>
+        </div>
+        <div class="card-body">
+          <div class="info-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span>Keyboard shortcuts assigned to your search URLs. <strong>Select text</strong> on any page, then press the shortcut to instantly search. Manage shortcuts from the Search URLs tab using the <svg style="display:inline;vertical-align:middle;width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01"/><path d="M10 8h.01"/><path d="M14 8h.01"/><path d="M18 8h.01"/><path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/><path d="M7 16h10"/></svg> button.</span>
+          </div>
+        </div>
+        <div id="shortcut-list"></div>
+        <div id="shortcut-empty" class="empty-list hidden">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01"/><path d="M10 8h.01"/><path d="M14 8h.01"/><path d="M18 8h.01"/><path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/><path d="M7 16h10"/></svg>
+          <p>No keyboard shortcuts assigned yet. Use the keyboard icon on each Search URL to assign one.</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="card-header">
+          <h2>Omnibox Search</h2>
+        </div>
+        <div class="card-body">
+          <div class="info-tip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span>Type <code>cs</code> in the Chrome address bar, press <code>Tab</code>, then type the name of a search shortcut followed by your query. The extension will search using the matched shortcut.</span>
+          </div>
+          <div class="omnibox-demo">
+            <span class="omnibox-keyword">cs</span>
+            <span class="omnibox-text">google hello world</span>
+            <span style="color:var(--text-muted);margin-left:auto;font-size:11px;">→ Searches Google for "hello world"</span>
+          </div>
+          <div class="omnibox-demo" style="margin-top:6px">
+            <span class="omnibox-keyword">cs</span>
+            <span class="omnibox-text">github react hooks</span>
+            <span style="color:var(--text-muted);margin-left:auto;font-size:11px;">→ Searches GitHub for "react hooks"</span>
+          </div>
+          <div class="omnibox-demo" style="margin-top:6px">
+            <span class="omnibox-keyword">cs</span>
+            <span class="omnibox-text">stackoverflow promise chaining</span>
+            <span style="color:var(--text-muted);margin-left:auto;font-size:11px;">→ Searches Stack Overflow for "promise chaining"</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Trash Tab -->
-  <div class="tab-panel" id="tab-trash">
-    <div class="card">
-      <div class="card-header">
-        <h2>Recently Deleted</h2>
-        <button id="empty-trash-btn" class="btn btn-danger" style="padding:6px 14px;font-size:12px;border:1px solid var(--danger);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-          Empty Trash
+  <!-- Tutorial Overlay -->
+  <div class="tutorial-overlay hidden" id="tutorial-overlay">
+    <div class="tutorial-card">
+      <button class="tutorial-close" id="tutorial-close" title="Close tutorial">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+      <div class="tutorial-icon" id="tutorial-icon"></div>
+      <h2 id="tutorial-title"></h2>
+      <div id="tutorial-body"></div>
+      <div class="tutorial-steps" id="tutorial-dots"></div>
+      <div class="tutorial-actions">
+        <button class="tutorial-skip" id="tutorial-skip">Skip tutorial</button>
+        <button class="tutorial-next" id="tutorial-next">
+          Next
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
         </button>
       </div>
-      <div class="info-tip" style="margin:16px 20px 0">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-        <span>Deleted shortcuts are kept here for <strong id="trash-retention-display">15 days</strong> before being permanently removed. You can restore them at any time.</span>
-      </div>
-      <div id="trash-list"></div>
-      <div id="trash-empty" class="empty-list hidden">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-        <p>Trash is empty. Deleted shortcuts will appear here.</p>
-      </div>
     </div>
   </div>
 
-  <!-- Environments Tab -->
-  <div class="tab-panel" id="tab-environments">
-    <div class="card">
-      <div class="card-header">
-        <h2>Add Environment</h2>
-      </div>
-      <div class="card-body">
-        <div class="info-tip">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          <span>Environments let you switch variable values per context (e.g., dev, staging, prod). When a URL uses <code>{{VAR}}</code>, you'll be able to choose an environment from the right-click menu.</span>
-        </div>
-        <form id="add-env-form" class="form-row">
-          <div class="form-group">
-            <label for="env-name">Environment Name</label>
-            <input type="text" id="env-name" placeholder="e.g., PRODUCTION" required>
-          </div>
-          <button type="submit" class="btn btn-primary" style="align-self:flex-end">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-            Add
-          </button>
-        </form>
-      </div>
-    </div>
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
 
-    <div class="card" style="margin-top:16px">
-      <div class="card-header">
-        <h2>Saved Environments</h2>
-      </div>
-      <div id="env-list"></div>
-      <div id="env-empty" class="empty-list hidden">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-        <p>No environments created yet. Add one to manage variable overrides.</p>
-      </div>
-    </div>
-  </div>
-  <!-- Settings Tab -->
-  <div class="tab-panel" id="tab-settings">
-    <div class="card">
-      <div class="card-header">
-        <h2>Preferences</h2>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-row">
-          <div class="setting-label">
-            <h3>Theme</h3>
-            <p>Choose how the extension looks.</p>
-          </div>
-          <div class="setting-control">
-            <div class="theme-toggle">
-              <button class="theme-btn" data-theme="light" title="Light">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-              </button>
-              <button class="theme-btn" data-theme="system" title="System">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-              </button>
-              <button class="theme-btn" data-theme="dark" title="Dark">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-row">
-          <div class="setting-label">
-            <h3>Trash Retention</h3>
-            <p>Days to keep deleted shortcuts before permanent removal.</p>
-          </div>
-          <div class="setting-control">
-            <input type="number" id="setting-trash-days" min="1" max="90" value="15"> days
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-row">
-          <div class="setting-label">
-            <h3>New Tab Position</h3>
-            <p>Where to open shortcut links.</p>
-          </div>
-          <div class="setting-control">
-            <select id="setting-tab-position">
-              <option value="next">Next to current tab</option>
-              <option value="end">End of tab bar</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-row">
-          <div class="setting-label">
-            <h3>Default Category</h3>
-            <p>Auto-select this category when adding new URLs.</p>
-          </div>
-          <div class="setting-control">
-            <select id="setting-default-category">
-              <option value="">None</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-row">
-          <div class="setting-label">
-            <h3>Preset Menu Layout</h3>
-            <p>How presets appear in the right-click context menu.</p>
-          </div>
-          <div class="setting-control">
-            <select id="setting-preset-menu-layout">
-              <option value="flat">Flat list</option>
-              <option value="grouped">Grouped by category</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-row">
-          <div class="setting-label">
-            <h3>Show Query Bar by Default</h3>
-            <p>Always show the search query input in the popup. Shortcut: <kbd>Alt+Q</kbd> (Windows/Linux) / <kbd>⌥Q</kbd> (Mac) to toggle anytime.</p>
-          </div>
-          <div class="setting-control">
-            <select id="setting-popup-query-bar">
-              <option value="false">Hidden (show on demand)</option>
-              <option value="true" selected>Always visible</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <h3>Right-Click Menu Order</h3>
-        <p>Drag to reorder how sections appear in the right-click context menu.</p>
-        <div id="context-menu-order" class="context-menu-order-list"></div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:16px">
-      <div class="card-header">
-        <h2>Assigned Keyboard Shortcuts</h2>
-      </div>
-      <div class="card-body">
-        <div class="info-tip">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          <span>Keyboard shortcuts assigned to your search URLs. <strong>Select text</strong> on any page, then press the shortcut to instantly search. Manage shortcuts from the Search URLs tab using the <svg style="display:inline;vertical-align:middle;width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01"/><path d="M10 8h.01"/><path d="M14 8h.01"/><path d="M18 8h.01"/><path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/><path d="M7 16h10"/></svg> button.</span>
-        </div>
-      </div>
-      <div id="shortcut-list"></div>
-      <div id="shortcut-empty" class="empty-list hidden">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01"/><path d="M10 8h.01"/><path d="M14 8h.01"/><path d="M18 8h.01"/><path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/><path d="M7 16h10"/></svg>
-        <p>No keyboard shortcuts assigned yet. Use the keyboard icon on each Search URL to assign one.</p>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:16px">
-      <div class="card-header">
-        <h2>Omnibox Search</h2>
-      </div>
-      <div class="card-body">
-        <div class="info-tip">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          <span>Type <code>cs</code> in the Chrome address bar, press <code>Tab</code>, then type the name of a search shortcut followed by your query. The extension will search using the matched shortcut.</span>
-        </div>
-        <div class="omnibox-demo">
-          <span class="omnibox-keyword">cs</span>
-          <span class="omnibox-text">google hello world</span>
-          <span style="color:var(--text-muted);margin-left:auto;font-size:11px;">→ Searches Google for "hello world"</span>
-        </div>
-        <div class="omnibox-demo" style="margin-top:6px">
-          <span class="omnibox-keyword">cs</span>
-          <span class="omnibox-text">github react hooks</span>
-          <span style="color:var(--text-muted);margin-left:auto;font-size:11px;">→ Searches GitHub for "react hooks"</span>
-        </div>
-        <div class="omnibox-demo" style="margin-top:6px">
-          <span class="omnibox-keyword">cs</span>
-          <span class="omnibox-text">stackoverflow promise chaining</span>
-          <span style="color:var(--text-muted);margin-left:auto;font-size:11px;">→ Searches Stack Overflow for "promise chaining"</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Tutorial Overlay -->
-<div class="tutorial-overlay hidden" id="tutorial-overlay">
-  <div class="tutorial-card">
-    <button class="tutorial-close" id="tutorial-close" title="Close tutorial">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-    </button>
-    <div class="tutorial-icon" id="tutorial-icon"></div>
-    <h2 id="tutorial-title"></h2>
-    <div id="tutorial-body"></div>
-    <div class="tutorial-steps" id="tutorial-dots"></div>
-    <div class="tutorial-actions">
-      <button class="tutorial-skip" id="tutorial-skip">Skip tutorial</button>
-      <button class="tutorial-next" id="tutorial-next">
-        Next
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
-<script src="theme.js"></script>
-<script src="options.js"></script>
+  <script src="theme.js"></script>
+  <script src="options.js"></script>
 </body>
 </html>

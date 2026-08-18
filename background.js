@@ -37,17 +37,19 @@ const PRESET_CATEGORY_MAP = {
 };
 
 // Create a parent menu item on installation
-chrome.runtime.onInstalled.addListener(() => {
-  createParentMenu();
-  loadMenuItems();
-});
+if (typeof chrome !== 'undefined') {
+  chrome.runtime.onInstalled.addListener(() => {
+    createParentMenu();
+    loadMenuItems();
+  });
+}
 
 function createParentMenu() {
-  chrome.contextMenus.create({
-    id: 'customSearchParent',
-    title: 'Custom Search',
-    contexts: ['selection']
-  });
+    chrome.contextMenus.create({
+        id: 'customSearchParent',
+        title: 'Custom Search',
+        contexts: ['selection']
+    });
 }
 
 // Function to load menu items from storage
@@ -193,10 +195,10 @@ function loadMenuItems() {
                 parentId: 'customSearchParent'
               });
               nonPresetUrls.filter(u => u.category === cat.id)
-                  .forEach(urlItem => {
-                    const suffix = favSet.has(urlItem.id) ? '_cat' : '';
-                    addUrlMenu(urlItem, categoryMap[cat.id], suffix);
-                  });
+                .forEach(urlItem => {
+                  const suffix = favSet.has(urlItem.id) ? '_cat' : '';
+                  addUrlMenu(urlItem, categoryMap[cat.id], suffix);
+                });
             });
             sectionsRendered++;
           }
@@ -255,7 +257,7 @@ function substituteEnvVars(url, envId, variables, environments) {
 }
 
 // Listen for clicks on context menu items
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+if (typeof chrome !== 'undefined') chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'manage') {
     chrome.runtime.openOptionsPage();
     return;
@@ -264,13 +266,13 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'addCurrentUrl') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0] &&
-          !(tabs[0].url.startsWith('chrome-extension://') || tabs[0].url.startsWith('chrome://'))) {
+         !(tabs[0].url.startsWith('chrome-extension://') || tabs[0].url.startsWith('chrome://'))) {
         const tabUrl = tabs[0].url;
         const tabTitle = tabs[0].title || 'New Search';
         chrome.tabs.create({
           url: chrome.runtime.getURL('options.html') +
-              '?prefillName=' + encodeURIComponent(tabTitle) +
-              '&prefillUrl=' + encodeURIComponent(tabUrl)
+            '?prefillName=' + encodeURIComponent(tabTitle) +
+            '&prefillUrl=' + encodeURIComponent(tabUrl)
         });
       }
     });
@@ -301,26 +303,37 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
  * Stores { lastUsed: timestamp, useCount: number } keyed by urlId.
  * @param {string} urlId
  */
+// Serializes read-modify-write per URL so rapid recordUsage calls don't clobber each other.
+const _usageQueues = {};
+
 function recordUsage(urlId) {
   if (!urlId) return;
   const key = `usage_${urlId}`;
-  chrome.storage.local.get({ [key]: { lastUsed: 0, useCount: 0 } }, (data) => {
-    const entry = data[key];
-    chrome.storage.local.set({
-      [key]: { lastUsed: Date.now(), useCount: (entry.useCount || 0) + 1 }
+  const prev = _usageQueues[key] || Promise.resolve();
+  _usageQueues[key] = prev.then(() => {
+    return new Promise((resolve) => {
+      chrome.storage.local.get({ [key]: { lastUsed: 0, useCount: 0 } }, (data) => {
+        const entry = data[key];
+        chrome.storage.local.set({
+          [key]: { lastUsed: Date.now(), useCount: (entry.useCount || 0) + 1 }
+        }, resolve);
+      });
     });
   });
+  return _usageQueues[key];
 }
 
 // Listen for changes in storage to update menu items
-chrome.storage.onChanged.addListener((changes, namespace) => {
-  if (namespace === 'sync' && (changes.urls || changes.variables || changes.environments || changes.categories || changes.favorites || changes.settings)) {
-    loadMenuItems();
-  }
-});
+if (typeof chrome !== 'undefined') {
+  chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === 'sync' && (changes.urls || changes.variables || changes.environments || changes.categories || changes.favorites || changes.settings)) {
+      loadMenuItems();
+    }
+  });
+}
 
 // --- Keyboard Shortcut Handler ---
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+if (typeof chrome !== 'undefined') chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type !== 'KEYBOARD_SHORTCUT_SEARCH') return;
 
   const { urlId, selectedText } = message;
@@ -342,7 +355,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // --- Omnibox Handler (keyword: cs) ---
-chrome.omnibox.onInputStarted.addListener(() => {
+if (typeof chrome !== 'undefined') chrome.omnibox.onInputStarted.addListener(() => {
   chrome.omnibox.setDefaultSuggestion({
     description: 'Type to filter shortcuts — e.g. "g hello world" or just browse all'
   });
@@ -388,7 +401,7 @@ function getDomainForOmni(url) {
   try { return new URL(url.replace('%s', 'x')).hostname; } catch { return ''; }
 }
 
-chrome.omnibox.onInputChanged.addListener((text, suggest) => {
+if (typeof chrome !== 'undefined') chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   chrome.storage.sync.get({ urls: [], favorites: [], categories: [] }, (data) => {
     const input = text.trim().toLowerCase();
     const favSet = new Set(data.favorites || []);
@@ -407,8 +420,8 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
       scored = data.urls.map(u => ({ item: u, score: favSet.has(u.id) ? 1000 : 0 }));
     } else {
       scored = data.urls
-          .map(u => ({ item: u, score: scoreMatch(u.name.toLowerCase(), prefix, favSet.has(u.id)) }))
-          .filter(s => s.score >= 0);
+        .map(u => ({ item: u, score: scoreMatch(u.name.toLowerCase(), prefix, favSet.has(u.id)) }))
+        .filter(s => s.score >= 0);
     }
     scored.sort((a, b) => b.score - a.score);
 
@@ -417,8 +430,8 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
     if (total > 0) {
       const topName = escapeOmni(scored[0].item.name);
       const hint = queryText
-          ? `<match>${topName}</match> — "${escapeOmni(queryText)}"  <dim>(${total} match${total > 1 ? 'es' : ''})</dim>`
-          : `<match>${topName}</match>  <dim>(${total} match${total > 1 ? 'es' : ''} — type query after name)</dim>`;
+        ? `<match>${topName}</match> — "${escapeOmni(queryText)}"  <dim>(${total} match${total > 1 ? 'es' : ''})</dim>`
+        : `<match>${topName}</match>  <dim>(${total} match${total > 1 ? 'es' : ''} — type query after name)</dim>`;
       chrome.omnibox.setDefaultSuggestion({ description: hint });
     } else {
       chrome.omnibox.setDefaultSuggestion({ description: `No shortcuts matching "${escapeOmni(prefix)}"` });
@@ -441,7 +454,7 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   });
 });
 
-chrome.omnibox.onInputEntered.addListener((text, disposition) => {
+if (typeof chrome !== 'undefined') chrome.omnibox.onInputEntered.addListener((text, disposition) => {
   chrome.storage.sync.get({ urls: [], variables: [], environments: [], favorites: [], settings: {} }, (data) => {
     const input = text.trim();
     if (!input) return;
@@ -517,4 +530,8 @@ function openOmniboxResult(url, disposition) {
         if (tabs[0]) chrome.tabs.update(tabs[0].id, { url });
       });
   }
+}
+
+if (typeof module !== 'undefined') {
+  module.exports = { scoreMatch, substituteEnvVars, escapeOmni, getDomainForOmni, recordUsage, PRESET_CATEGORY_MAP };
 }

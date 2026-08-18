@@ -13,20 +13,21 @@ A Chrome extension that adds customizable search shortcuts to your right-click c
 - **Environment Variables**: Define variables with different values for dev, test, and prod environments
 - **Dynamic URL Templates**: Use `{{variable}}` syntax to create flexible search URLs
 - **Right-Click Integration**: Seamlessly integrated into Chrome's context menu
-- **Import/Export**: Backup and share your search configurations (includes all data: URLs, variables, environments, categories, trash, favorites, and settings)
+- **Import/Export**: Backup and share your entire configuration. Export all shortcuts or just a selection.
 - **Manifest V3**: Built with the latest Chrome extension standards
 
 ### Organization
 - **Search Categories**: Group shortcuts into categories (e.g., "Work", "Dev Tools", "Social") that appear as nested submenus in the context menu
 - **Emoji Category Icons**: Assign emoji icons to categories — displayed in the context menu, popup, and options page for visual distinction
 - **Drag & Drop Reordering**: Reorder URLs, categories, and environments by dragging
-- **Context Menu Separators**: Visual separators between uncategorized URLs, category submenus, and management options
+- **Customizable Context Menu**: Reorder the main sections (Favorites, Presets, Custom URLs, Categories) to your liking.
+- **Preset Layouts**: Display presets as a flat list or grouped by category (Developer, AI, etc.).
 
 ### Favorites
 - **Pin Favorites**: Star any shortcut to pin it as a favorite for instant access
 - **Popup Favorites Section**: Favorited shortcuts appear at the top of the popup under a dedicated ⭐ Favorites header
 - **Context Menu Pinning**: Favorites are pinned to the top of the right-click context menu, separated from the rest
-- **Category Preservation**: Favorited URLs still appear inside their category submenus in addition to being pinned at the top
+- **Dual Listing**: Favorited URLs are pinned at the top while also remaining accessible within their original category submenu.
 - **Toggle from Options**: Star/unstar shortcuts directly from the options page URL list
 
 ### Keyboard Shortcuts
@@ -41,22 +42,38 @@ A Chrome extension that adds customizable search shortcuts to your right-click c
 ### Omnibox Search
 - **Address Bar Integration**: Type `cs` in Chrome's address bar, press `Tab`, then type a shortcut name followed by your query
 - **Auto-Suggestions**: Matching search URLs appear as suggestions as you type
-- **Smart Matching**: Matches shortcut names by exact match, prefix, or contains — in that priority order
+- **Smart Matching**: Advanced ranking scores matches by exact fit, prefix, word start, and initials for highly relevant suggestions.
+- **Rich Suggestions**: Suggestions are formatted to show the shortcut name, domain, category, and favorite status.
 - **Fallback Search**: If no shortcut name matches, the entire input is used as a search query with the first available URL
 - **Example**: `cs google hello world` → searches Google for "hello world"
 
 ### Productivity
 - **Duplicate Shortcuts**: Clone an existing shortcut — pre-fills the form with the URL data for review before saving
-- **Popup Quick Access**: Search and launch shortcuts directly from the popup with category group headers
-- **New Tab Positioning**: Open shortcut links right next to your current tab (configurable)
+- **Popup Quick Access**: A mini-dashboard to instantly search, manage, and launch shortcuts.
+- **Search & Filter**: Quickly find any shortcut.
+- **Sort Modes**: Sort shortcuts alphabetically (default), by most used, or by recently used.
+- **Query Bar**: Activate a query bar (`Alt+Q`) to test searches without leaving the popup.
+- **Copy URL**: Copy the final search URL to your clipboard for any shortcut.
+- **Usage Stats**: See how many times you've used each shortcut with a handy counter badge.
+- **New Tab Positioning**: Open shortcut links right next to your current tab (configurable).
+- **Smart URL Suggestions**: When you paste a URL from a search results page, the extension automatically suggests the correct search template (`%s`).
+- **Bulk Actions**: Select multiple shortcuts to delete, export, or move to a different category all at once.
 
 ### Safety
 - **Trash / Undo Delete**: Deleted shortcuts are moved to Trash with an "Undo" toast (Gmail-style). Trash retains items for a configurable number of days before permanent removal
 - **Restore from Trash**: One-click restore of deleted shortcuts, or permanently delete individual items or empty the entire trash
 
 ### Appearance
-- **Dark Mode / Theme Toggle**: Light, Dark, and System theme modes. Synced across the options page and popup
-- **Settings Page**: Centralized configuration for theme, trash retention period, new tab position, and default category
+- **Dark Mode / Theme Toggle**: Light, Dark, and System theme modes. Synced across the options page and popup, and can be changed from either.
+- **Settings Page**: A centralized hub to fine-tune your experience:
+   - **Theme**: Light, Dark, or System.
+   - **Trash Retention**: How long to keep deleted items (1-90 days).
+   - **New Tab Position**: Open at the end of the tab bar or next to the current tab.
+   - **Default Category**: Automatically assign new shortcuts to a specific category.
+   - **Context Menu Order**: Drag to reorder the top-level sections.
+   - **Preset Layout**: Flat list vs. grouped submenus.
+   - **Popup Defaults**: Set the default sort mode and whether the query bar appears automatically.
+   - **Smart Suggestions**: Toggle the automatic URL template suggestion.
 
 ## 🚀 Installation
 
@@ -307,7 +324,7 @@ Prod:    https://yourdomain.com/
     "trashDays": 15,
     "tabPosition": "next",
     "defaultCategory": ""
-  },
+  }, 
    "keyboardShortcuts": [
       {
          "urlId": "custom-search-1234567890",
