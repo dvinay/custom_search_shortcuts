@@ -97,42 +97,56 @@ A Chrome extension that adds customizable search shortcuts to your right-click c
 
 6. The extension icon should appear in your toolbar!
 
-## 📖 Usage Walkthrough (with screenshots)
+## 📖 Core feature Usage Walkthrough (check docs page for other features)
+
+> **📚 Full Feature Documentation**: For a detailed, step-by-step walkthrough of every feature, see the [feature docs index](docs/features/README.md), or jump directly to a feature:
+> [Custom Search Engines](docs/features/01-custom-search-engines.md) ·
+> [Environment Variables](docs/features/02-environment-variables.md) ·
+> [Categories](docs/features/03-categories.md) ·
+> [Drag & Drop Reordering](docs/features/04-drag-and-drop-reordering.md) ·
+> [Context Menu & Preset Customization](docs/features/05-context-menu-customization.md) ·
+> [Favorites](docs/features/06-favorites.md) ·
+> [Keyboard Shortcuts](docs/features/07-keyboard-shortcuts.md) ·
+> [Omnibox Search](docs/features/08-omnibox-search.md) ·
+> [Productivity Features](docs/features/09-productivity.md) ·
+> [Safety: Trash & Undo Delete](docs/features/10-safety-trash-and-undo.md) ·
+> [Appearance & Settings](docs/features/11-appearance-and-settings.md) ·
+> [Import/Export Configuration](docs/features/12-import-export.md)
 
 1. Open the extension popup
 ---
-![Open extension popup – Manage Custom Searches](docs/images/1.%20Plugin%20access.png)
+![Open extension popup – Manage Custom Searches](docs/images/core/1.%20Plugin%20access.png)
 
 2. Options page (initial view)
-![Options page – initial view](docs/images/2.%20Plugin%20page.png)
+![Options page – initial view](docs/images/core/2.%20Plugin%20page.png)
 
 3. Add a new search URL
-![Add a new search URL](docs/images/3.%20Add%20new%20search%20shortcut.png)
+![Add a new search URL](docs/images/core/3.%20Add%20new%20search%20shortcut.png)
 
 4. Use the custom search from the page
-![Use custom shortcut](docs/images/4.%20Use%20custom%20shortcut.png)
+![Use custom shortcut](docs/images/core/4.%20Use%20custom%20shortcut.png)
 
 5. Add a variable (for environment-aware URLs)
-![Add a new variable](docs/images/5.%20Add%20a%20new%20variable.png)
+![Add a new variable](docs/images/core/5.%20Add%20a%20new%20variable.png)
 
 6. Create environments
    1. Add a new environment
-   ![Add a new environment](docs/images/6.%20Add%20a%20new%20environment%20.png)
+   ![Add a new environment](docs/images/core/6.%20Add%20a%20new%20environment%20.png)
 
-   2. Add a environment with default value
-   ![New environment with default value](docs/images/7.%20New%20environment%20with%20default%20value.png)
+   2. Add an environment with a default value
+   ![New environment with default value](docs/images/core/7.%20New%20environment%20with%20default%20value.png)
 
    3. Add multiple environments
-   ![Add multiple environments](docs/images/8.%20Add%20multiple%20environments.png)
+   ![Add multiple environments](docs/images/core/8.%20Add%20multiple%20environments.png)
 
 7. Create a URL that uses a variable
-![Add URL with variable](docs/images/9.%20Add%20url%20with%20variable.png)
+![Add URL with variable](docs/images/core/9.%20Add%20url%20with%20variable.png)
 
 9. Final configuration
-![Final configurations](docs/images/10.%20Final%20configurations.png)
+![Final configurations](docs/images/core/10.%20Final%20configurations.png)
 
 10.  Use environment-specific search
-![Use custom shortcut with environments and variables](docs/images/11.%20Custom%20shortcut%20use%20with%20environment%20and%20variables.png)
+![Use custom shortcut with environments and variables](docs/images/core/11.%20Custom%20shortcut%20use%20with%20environment%20and%20variables.png)
 
 ### Basic Search
 
