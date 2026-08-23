@@ -101,29 +101,29 @@ A Chrome extension that adds customizable search shortcuts to your right-click c
 
 > **📚 Full Feature Documentation**: For a detailed, step-by-step walkthrough of every feature, see the [feature docs index](docs/features/README.md), or jump directly to a feature:
 
-> [Custom Search Engines](docs/features/01-custom-search-engines.md) ·
+> [Custom Search Engines](docs/features/01-custom-search-engines.md)
 > 
-> [Environment Variables](docs/features/02-environment-variables.md) ·
+> [Environment Variables](docs/features/02-environment-variables.md)
 > 
-> [Categories](docs/features/03-categories.md) ·
+> [Categories](docs/features/03-categories.md)
 > 
-> [Drag & Drop Reordering](docs/features/04-drag-and-drop-reordering.md) ·
+> [Drag & Drop Reordering](docs/features/04-drag-and-drop-reordering.md)
 > 
-> [Context Menu & Preset Customization](docs/features/05-context-menu-customization.md) ·
+> [Context Menu & Preset Customization](docs/features/05-context-menu-customization.md)
 > 
-> [Favorites](docs/features/06-favorites.md) ·
+> [Favorites](docs/features/06-favorites.md)
 > 
-> [Keyboard Shortcuts](docs/features/07-keyboard-shortcuts.md) ·
+> [Keyboard Shortcuts](docs/features/07-keyboard-shortcuts.md)
 > 
-> [Omnibox Search](docs/features/08-omnibox-search.md) ·
+> [Omnibox Search](docs/features/08-omnibox-search.md)
 >
-> [Import/Export Configuration](docs/features/09-import-export.md) ·
+> [Import/Export Configuration](docs/features/09-import-export.md)
 > 
-> [Safety: Trash & Undo Delete](docs/features/10-safety-trash-and-undo.md) ·
+> [Safety: Trash & Undo Delete](docs/features/10-safety-trash-and-undo.md)
 > 
-> [Appearance & Settings](docs/features/11-appearance-and-settings.md) ·
+> [Appearance & Settings](docs/features/11-appearance-and-settings.md)
 >
-> [Productivity Features](docs/features/12-productivity.md) ·
+> [Productivity Features](docs/features/12-productivity.md)
 
 1. Open the extension popup
 ---
