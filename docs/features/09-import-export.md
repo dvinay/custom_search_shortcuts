@@ -8,18 +8,18 @@ Backup and share your entire configuration, or just a selection of shortcuts, as
 
 2. Click **Export Configuration**
 
-   ![Export Configuration button](../images/features/import-export-01.png)
+   ![Export Configuration button](../images/features/09-import-export/import-export-01.png)
 
 3. Save the generated JSON file to your computer
 
-   ![Saving the exported JSON file](../images/features/import-export-02.png)
+   ![Saving the exported JSON file](../images/features/09-import-export/import-export-02.png)
 
 ### Exporting a Selection Only
 
 1. In **Options → Search URLs**, select specific shortcuts using their checkboxes
 2. Use the bulk action bar's **Export** option to export only the selected shortcuts
 
-   ![Exporting a selection of shortcuts](../images/features/import-export-03.png)
+   ![Exporting a selection of shortcuts](../images/features/09-import-export/import-export-03.png)
 
 ## Import
 
@@ -27,15 +27,12 @@ Backup and share your entire configuration, or just a selection of shortcuts, as
 
 2. Click **Import Configuration**
 
-   ![Import Configuration button](../images/features/import-export-04.png)
+   ![Import Configuration button](../images/features/09-import-export/import-export-04.png)
 
 3. Select your previously exported JSON file
 
-   ![Choosing a JSON file to import](../images/features/import-export-05.png)
-
 4. Your searches, variables, environments, categories, favorites, trash, and settings are restored
 
-   ![Configuration restored after import](../images/features/import-export-06.png)
 
 ## Configuration Format
 
@@ -103,4 +100,4 @@ Backup and share your entire configuration, or just a selection of shortcuts, as
 
 - [Custom Search Engines](01-custom-search-engines.md)
 - [Environment Variables & Dynamic URL Templates](02-environment-variables.md)
-- [Productivity Features](09-productivity.md)
+- [Productivity Features](12-productivity.md)

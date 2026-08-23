@@ -8,25 +8,25 @@ Assign a custom hotkey to any search URL so you can select text on any page and 
 
 2. Click the ⌨️ **keyboard icon** on the URL you want to assign a shortcut to
 
-   ![Keyboard icon on a saved URL](../images/features/keyboard-shortcuts-01.png)
+   ![Keyboard icon on a saved URL](../images/features/07-keyboard-shortcuts/keyboard-shortcuts-01.png)
 
 3. **Record the shortcut**
    - The icon enters "recording" mode
    - Press your desired key combination, e.g. `Ctrl+Shift+G`
    - Modifier keys are shown live as you hold them, and the full combo is displayed before saving
 
-   ![Recording a keyboard shortcut with live feedback](../images/features/keyboard-shortcuts-02.png)
+   ![Recording a keyboard shortcut with live feedback](../images/features/07-keyboard-shortcuts/keyboard-shortcuts-02.png)
 
 4. The shortcut is **saved instantly** once a valid combination (including at least one modifier: `Ctrl`, `Alt`, or `Shift`) is pressed
 
-   ![Shortcut saved with purple dot indicator](../images/features/keyboard-shortcuts-03.png)
+   ![Shortcut saved with purple dot indicator](../images/features/07-keyboard-shortcuts/keyboard-shortcuts-03.png)
 
 5. **Use the shortcut**
    - Select text on any webpage
    - Press the assigned key combination
    - The search opens instantly, just like using the context menu
 
-   ![Using an assigned keyboard shortcut on a page](../images/features/keyboard-shortcuts-04.png)
+   ![Using an assigned keyboard shortcut on a page](../images/features/07-keyboard-shortcuts/keyboard-shortcuts-04.png)
 
 6. **Remove a shortcut**
    - Click the keyboard icon to enter recording mode again
@@ -35,7 +35,7 @@ Assign a custom hotkey to any search URL so you can select text on any page and 
 7. **View all assigned shortcuts**
    - Go to **Options → Settings → Assigned Keyboard Shortcuts** to see and manage every shortcut you've configured
 
-   ![Assigned Keyboard Shortcuts overview in Settings](../images/features/keyboard-shortcuts-05.png)
+   ![Assigned Keyboard Shortcuts overview in Settings](../images/features/07-keyboard-shortcuts/keyboard-shortcuts-05.png)
 
 ## Notes
 

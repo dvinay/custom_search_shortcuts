@@ -66,27 +66,24 @@ A collection of tools in the popup and options page that speed up managing and u
 
 1. When adding a new Search URL, paste a URL copied directly from a search results page (e.g., `https://www.google.com/search?q=chrome+extensions`)
 2. The extension detects the search query portion and automatically suggests replacing it with the `%s` placeholder
-
-![Smart URL suggestion detecting the search placeholder](../images/features/productivity-09.png)
-
 3. This behavior can be toggled on/off in **Options → Settings → Smart URL Suggestion**
 
 ## Bulk Actions
 
 1. In **Options → Search URLs**, select multiple shortcuts using their checkboxes
 
-![Selecting multiple shortcuts for bulk action](../images/features/productivity-10.png)
+![Selecting multiple shortcuts for bulk action](../images/features/productivity-09.png)
 
 2. Use the bulk action bar to:
    - **Delete** all selected shortcuts (moved to Trash)
    - **Export** just the selection
    - **Move** the selection to a different category
 
-![Bulk action bar with delete, export, and move options](../images/features/productivity-11.png)
+![Bulk action bar with delete, export, and move options](../images/features/productivity-10.png)
 
 ## Related Features
 
 - [Custom Search Engines](01-custom-search-engines.md)
 - [Favorites](06-favorites.md)
 - [Safety: Trash & Undo Delete](10-safety-trash-and-undo.md)
-- [Import/Export Configuration](12-import-export.md)
+- [Import/Export Configuration](09-import-export.md)

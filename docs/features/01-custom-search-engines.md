@@ -39,7 +39,7 @@ Every shortcut is a URL template. The extension replaces the `%s` placeholder in
 ## Tips
 
 - You can add as many search URLs as you like — there's no limit.
-- If you paste a URL copied from an actual search results page, the extension can automatically suggest the correct `%s` placeholder (see [Smart URL Suggestions](09-productivity.md#smart-url-suggestions)).
+- If you paste a URL copied from an actual search results page, the extension can automatically suggest the correct `%s` placeholder (see [Smart URL Suggestions](12-productivity.md#smart-url-suggestions)).
 - Use the ✏️ edit icon on a saved URL to update its name, URL, or category at any time.
 - Use the 🗑️ delete icon to remove a shortcut — it goes to [Trash](10-safety-trash-and-undo.md) first, not permanently deleted.
 
